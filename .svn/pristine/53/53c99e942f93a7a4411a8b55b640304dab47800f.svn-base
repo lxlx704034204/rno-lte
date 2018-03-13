@@ -1,0 +1,35 @@
+# default port & profile
+server.port=8091
+spring.profiles.active=dev
+# spark DB Connection Setting
+spring.datasource.url=jdbc:hive2://192.168.6.101:10016/dev
+spring.datasource.username=hive
+spring.datasource.password=
+spring.datasource.driverClassName=org.apache.hive.jdbc.HiveDriver
+# eureka config
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+#断路器超时，需与负载均衡超时配合使用，否则将出现多次重复动作
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=20000
+#负载均衡读取超时，应不小于断路器超时
+ribbon.ReadTimeout=30000
+#负载均衡连接超时，一般与读取超时相等
+ribbon.ConnectTimeout=30000
+#log
+logging.level.root=info
+logging.level.com.hgicreate.rno.lte=debug
+logging.level.com.hgicreate.rno.lte.mapper=debug
+#RNO
+rno.job-type-code=RNO_LTE_INTERFER_MATRIX
+rno.run-mode=always
+rno.scheduler.fixed-delay=10000
+rno.lte.service.common=rno-lte-common-service
+#mybatis xml location & config
+mybatis.configuration.mapUnderscoreToCamelCase=true
+#config for interference matrix calculation
+samefreqcellcoefweight=0.8
+switchratioweight=0.2
+dis-limit=5000
+rsrp0minus1weight=0.8
+rsrp1weight=1.2
+minmeasuresum=500
+mincorrelation=0

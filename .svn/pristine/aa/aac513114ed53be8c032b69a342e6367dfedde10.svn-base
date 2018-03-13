@@ -1,0 +1,77 @@
+package com.hgicreate.rno.lte.common.model.structanls;
+
+import lombok.Data;
+
+import javax.persistence.*;
+import java.io.Serializable;
+
+@Data
+@Entity
+@Table(name = "RNO_LTE_STRUCT_OLC_RES")
+@SequenceGenerator(name = "SEQ_RNO_LTE_STRUCT_OLC_RES", sequenceName = "SEQ_RNO_LTE_STRUCT_OLC_RES", allocationSize = 3)
+public class OverlapCover implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_RNO_LTE_STRUCT_OLC_RES")
+    private Long id;
+    private Long jobId;
+    private String cellId;
+    private Long totalCnt;
+    @Column(name = "sc_Gt105_Gt0_Cnt")
+    private Long scGt105Gt0Cnt;
+    @Column(name = "sc_Gt105_Gt0_Per")
+    private Double scGt105Gt0Per;
+    @Column(name = "sc_Gt110_Gt0_Cnt")
+    private Long scGt110Gt0Cnt;
+    @Column(name = "sc_Gt110_Gt0_Per")
+    private Double scGt110Gt0Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt3_Cnt")
+    private Long scGt110NcScGt6Gt3Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt3_Per")
+    private Double scGt110NcScGt6Gt3Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt4_Cnt")
+    private Long scGt110NcScGt6Gt4Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt4_Per")
+    private Double scGt110NcScGt6Gt4Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt5_Cnt")
+    private Long scGt110NcScGt6Gt5Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt5_Per")
+    private Double scGt110NcScGt6Gt5Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt6_Cnt")
+    private Long scGt110NcScGt6Gt6Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt6_Gt6_Per")
+    private Double scGt110NcScGt6Gt6Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt3_Cnt")
+    private Long scGt110NcScGt10Gt3Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt3_Per")
+    private Double scGt110NcScGt10Gt3Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt4_Cnt")
+    private Long scGt110NcScGt10Gt4Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt4_Per")
+    private Double scGt110NcScGt10Gt4Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt5_Cnt")
+    private Long scGt110NcScGt10Gt5Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt5_Per")
+    private Double scGt110NcScGt10Gt5Per;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt6_Cnt")
+    private Long scGt110NcScGt10Gt6Cnt;
+    @Column(name = "sc_Gt110_Nc_Sc_Gt10_Gt6_Per")
+    private Double scGt110NcScGt10Gt6Per;
+    @Column(name = "sc_Gt110_Eq1_Cnt")
+    private Long scGt110Eq1Cnt;
+    @Column(name = "sc_Gt110_Eq2_Cnt")
+    private Long scGt110Eq2Cnt;
+    @Column(name = "sc_Gt110_Eq3_Cnt")
+    private Long scGt110Eq3Cnt;
+    @Column(name = "sc_Gt110_Eq4_Cnt")
+    private Long scGt110Eq4Cnt;
+    @Column(name = "sc_Gt110_Eq5_Cnt")
+    private Long scGt110Eq5Cnt;
+    @Column(name = "sc_Gt110_Eq6_Cnt")
+    private Long scGt110Eq6Cnt;
+    @Column(name = "sc_Gt110_Eq7_Cnt")
+    private Long scGt110Eq7Cnt;
+    @Column(name = "sc_Gt110_Eq8_Cnt")
+    private Long scGt110Eq8Cnt;
+    @Column(name = "sc_Gt110_Eq9_Cnt")
+    private Long scGt110Eq9Cnt;
+}

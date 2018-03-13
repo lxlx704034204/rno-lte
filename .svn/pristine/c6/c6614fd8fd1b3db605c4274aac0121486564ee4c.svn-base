@@ -1,0 +1,17 @@
+#!/bin/bash
+
+VERSION="1.0.0.M1"
+SERVICES=("registry" "zuul-proxy" "pci-platform")
+
+for v in ${SERVICES[@]}; do
+  SRV="rno-$v"
+  chmod +x /root/.m2/repository/com/hgicreate/rno/$SRV/$VERSION/$SRV-$VERSION.jar
+  service $SRV stop > /dev/null 2>&1
+  rm -f /etc/init.d/$SRV
+  rm -f /var/log/$SRV.log
+  ln -s /root/.m2/repository/com/hgicreate/rno/$SRV/$VERSION/$SRV-$VERSION.jar /etc/init.d/$SRV
+  echo "JAVA_OPTS=\"-Dspring.profiles.active=uat\"" > /root/.m2/repository/com/hgicreate/rno/$SRV/$VERSION/$SRV-$VERSION.conf
+  echo "Deployed: $SRV"
+done
+
+echo "Deploy done."

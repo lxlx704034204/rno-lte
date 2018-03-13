@@ -1,0 +1,56 @@
+server:
+  port: 8083
+  connection-timeout: 900000 # 由于从Spark查询数据比较慢，所以设置为15分钟
+
+zuul:
+  ignoredServices: '*'
+  sensitiveHeaders:
+  routes:
+    f1:
+      path: /rno-lte-web-client/**
+      service-id: rno-lte-web-client
+      strip-prefix: false
+    f2:
+      path: /rno-lte-gis-client/**
+      service-id: rno-lte-gis-client
+      strip-prefix: false
+  ProxyFilter:
+    pre:
+      disable: false
+
+#断路器超时，需与负载均衡超时配合使用，单位是毫秒
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+
+ribbon:
+  ReadTimeout: 60000  #负载均衡读取超时，应不小于断路器超时
+  ConnectTimeout: 60000  #负载均衡连接超时，一般与读取超时相等
+
+rno:
+  lte:
+    source:
+      enabled: false
+      host: rno-pci.hgicreate.com
+
+---
+
+spring:
+  profiles: uat
+  datasource:
+    url: jdbc:oracle:thin:@192.168.6.40:1521:testora
+    username: rno_pci
+    password: 123456
+
+---
+
+spring:
+  profiles: prod
+  datasource:
+    url: jdbc:oracle:thin:@192.168.50.20:1521:rnodb
+    username: rno_lte
+    password: Rno_2017

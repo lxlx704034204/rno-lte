@@ -1,0 +1,154 @@
+package com.hgicreate.rno.tool;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.JSONSerializer;
+import lombok.Data;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class ExcelFileTool {
+
+	/**
+	 * 创建cells excel文件
+	 */
+	public static boolean createCellsExcel(HttpServletResponse response, Map<String, List<com.hgicreate.rno.model.Cell>> data,String fields) {
+		//数据库字段名
+		String[] defaultDbCellField={"cellId","cellName","enodebId","eci","areaId","manufacturer","tac","bandType","bandWidth","bandIndicator","bandAmount","earfcn","pci","coverType","coverScene","longitude","latitude","azimuth","eDowntilt","mDowntilt","totalDowntilt","antennaHeight","remoteCell","relatedParam","relatedResouce","stationSpace"};
+		//查询字段名
+		String[] defaultQueryCellField={"Cell ID","小区名","eNodeB","EutranCell ID","地市","厂家","跟踪区码","工作频段","小区带宽","频段指示","载频数量","频点","PCI","覆盖类型","覆盖场景","经度","纬度","方位角","电子下倾角","机械下倾角","总下倾角","天线挂高","是否拉远小区","是否关联状态库工参","是否关联状态库资源","站间距"};
+		Map<String,String> fieldToTitle = new HashMap<String,String>(){{
+			put("cellId","Cell ID");
+			put("cellName","小区名");
+			put("enodebId","eNodeB");
+			put("eci","EutranCell ID");
+			put("areaId","地市");
+			put("manufacturer","厂家");
+			put("tac","跟踪区码");
+			put("bandType","工作频段");
+			put("bandWidth","小区带宽");
+			put("bandIndicator","频段指示");
+			put("bandAmount","载频数量");
+			put("earfcn","频点");
+			put("pci","PCI");
+			put("coverType","覆盖类型");
+			put("coverScene","覆盖场景");
+			put("longitude","经度");
+			put("latitude","纬度");
+			put("azimuth","方位角");
+			put("eDowntilt","电子下倾角");
+			put("mDowntilt","机械下倾角");
+			put("totalDowntilt","总下倾角");
+			put("antennaHeight","天线挂高");
+			put("remoteCell","是否拉远小区");
+			put("relatedParam","是否关联状态库工参");
+			put("relatedResouce","是否关联状态库资源");
+			put("stationSpace","站间距");
+		}};
+		OutputStream os = null;
+		try {
+			os = response.getOutputStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		Workbook workbook = new SXSSFWorkbook();
+		Sheet sheet = workbook.createSheet();
+		Row row;
+		Cell cell;
+		int n = 0;
+		String[] fieldArr = fields.split(",");;
+		for (String s : data.keySet()) {
+			int titleIndex = 0, rowIndex = 0;
+			if (n > 0) {
+				sheet = workbook.createSheet();
+			}
+			workbook.setSheetName(n, s);
+			n++;
+			for (com.hgicreate.rno.model.Cell cells: data.get(s)) {
+				int valueIndex = 0;
+				if (rowIndex == 0) {
+					row = sheet.createRow(0);
+					if ("-1".equals(fields)){
+						for(int i=0;i<defaultQueryCellField.length;i++)
+						{
+							cell = row.createCell(titleIndex++);
+							cell.setCellValue(defaultQueryCellField[i]);
+						}
+					}else{
+						for(int i=0;i<fieldArr.length;i++)
+						{
+							cell = row.createCell(titleIndex++);
+							cell.setCellValue(fieldToTitle.get(fieldArr[i]));
+						}
+					}
+				}
+				row = sheet.createRow(++rowIndex);
+				JSON jsonObj = (JSON)JSONObject.toJSON(cells);
+				JSONObject json = JSONObject.parseObject(jsonObj.toString());//将java对象转换为json对象
+				if ("-1".equals(fields)){
+					for(int i=0;i<defaultDbCellField.length;i++){
+						cell = row.createCell(valueIndex++);
+						if (null!=json.get(defaultDbCellField[i])){
+							if("areaId"==defaultDbCellField[i]){
+								cell.setCellValue(json.get("areaName").toString());
+							}else{
+								cell.setCellValue(json.get(defaultDbCellField[i]).toString());
+							}
+						}else {
+							cell.setCellValue("");
+						}
+					}
+				}else{
+					for(int i=0;i<fieldArr.length;i++)
+					{
+						cell = row.createCell(valueIndex++);
+						if (null!=json.get(fieldArr[i])){
+							if("areaId"==fieldArr[i]){
+								cell.setCellValue(json.get("areaName").toString());
+							}else{
+								cell.setCellValue(json.get(fieldArr[i]).toString());
+							}
+						}else {
+							cell.setCellValue("");
+						}
+					}
+				}
+			}
+		}
+		// 最终写入文件
+		try {
+			workbook.write(os);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			if (workbook != null) {
+				try {
+					workbook.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			os.flush();
+			os.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+}

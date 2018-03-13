@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+<meta charset="UTF-8" />
+<title>LTE动态覆盖图</title>
+	<!-- 贝塞尔曲线类库 -->
+	<script src="../static/lib/turf.min.js" th:src="@{lib/turf.min.js}"></script>
+	<!-- define -->
+	<script type="text/javascript"  src="../static/js/rno_4g_dynamic_coverage.js" th:src="@{js/rno_4g_dynamic_coverage.js}"></script>
+	<link rel="stylesheet" href="../static/css/rno_4g_dynamic_coverage.css" th:href="@{css/rno_4g_dynamic_coverage.css}"/>
+	<script src="../static/js/selftools.js" th:src="@{js/selftools.js}"></script>
+	<script src="../static/lib/lib_table_sorter.js"  th:src="@{/lib/lib_table_sorter.js}"></script>
+	<script src="../static/js/common.js" th:src="@{js/common.js}"></script>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+        areaObj = /*[[${areaObj}]]*/ null;
+		/*]]>*/
+	</script>
+</head>
+<body>
+<!-- 数据加载遮罩层 -->
+<div th:replace="loading_cover :: loading_cover"></div>
+<!-- 获取map配置属性 -->
+<div th:replace="map_config :: map_config"></div>
+<!--地图-->
+<div id="map"></div>
+<div style="display: none">
+	<div id="popup"></div>
+</div>
+<div class="head_box">
+	<div class="dialog2 draggable ui-draggable">
+		<div style="padding: 5px">
+			<table class="citySelect">
+				<tr>
+					<!-- <td>省：</td> -->
+					<td>
+						<!-- 省： --> <select name="provinceId" class="form-control select-width-control" id="provinceId">
+						<!--<option th:each="province:${provinces}"
+								th:value="${province.areaId}" th:text="${province.name}">广东省</option>-->
+					</select>
+					</td>
+					<td>
+						<!-- 市： --> <select name="cityId" class="form-control select-width-control" id="cityId">
+						<!--<option th:each="city:${cities}" th:value="${city.areaId}"
+								th:text="${city.name}">广州市</option>-->
+					</select>
+					</td>
+					<td>
+						<!-- 区： --> <select name="areaId" class="form-control select-width-control" id="areaId">
+						<!--<option th:each="onearea:${countryAreas}" th:value="${onearea.areaId}"
+								th:text="${onearea.name}">天河区</option>-->
+					</select>
+					</td>
+					<td><select name="conditionType" class="form-control select-width-control" id="conditionType">
+						<option value="cell">小区ID</option>
+						<option value="chineseName">小区名</option>
+					</select></td>
+					<td><div class="input-group">
+						<input type="text" class="form-control" id="conditionValue" value="" placeholder="ID或名字用逗号隔开" />
+						<span id="searchCellBtn" class="input-group-addon span-style-control"><span class="glyphicon glyphicon-search"></span></span>
+					</div></td>
+				</tr>
+			</table>
+			<span id="loadingCellTip"></span>
+
+			<input type="hidden" id="hiddenZoom" name="zoom" value="16" />
+			<input
+				type="hidden" id="hiddenPageSize" name="page.pageSize"
+				value="100" /> <input type="hidden" id="hiddenCurrentPage"
+									  name="page.currentPage" value="1" /> <input type="hidden"
+																				  id="hiddenForcedStartIndex" name="page.forcedStartIndex"
+																				  value="-1" /> <input type="hidden" id="hiddenTotalPageCnt" />
+			<input type="hidden" id="hiddenTotalCnt" />
+			<span id="loadingCellTip"></span>
+			<!--<input  type="button" id="trigger" name="trigger" value=""/>-->
+			<div id="hiddenAreaLngLatDiv" style="display:none">
+				<input type="hidden"  th:each="onearea:${countryAreas}"
+					   th:id="${'areaid_'+onearea.areaId}"
+					   th:value="${onearea.lon+','+onearea.lat}"/>
+			</div>
+			<input type="hidden" id="hiddenZoom" name="zoom" value="16" />
+			<input type="hidden" id="hiddenLng"  /> <input
+				type="hidden" id="hiddenLat"  /> <input
+				type="hidden" id="hiddenPageSize" name="page.pageSize"
+				value="100" /> <input type="hidden" id="hiddenCurrentPage"
+									  name="page.currentPage" value="1" /> <input type="hidden"
+																				  id="hiddenForcedStartIndex" name="page.forcedStartIndex"
+																				  value="-1" /> <input type="hidden" id="hiddenTotalPageCnt" />
+			<input type="hidden" id="hiddenTotalCnt" />
+		</div>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="resource_list_icon">
+		<a href="#" class="switch"></a> <a href="#" class="switch_hidden"></a>
+		<div class="shad_v"></div>
+	</div>
+	<div class="resource_list_box box-height-control">
+		<div class="resource_list">
+			<div class="panel-body">
+
+				<ul class="nav nav-tabs" role="tablist" id="myTab">
+					<li role="presentation" class="active"><a href="#interPlanLi" role="tab" data-toggle="tab">选择条件</a></li>
+					<li role="presentation"><a href="#interDetailsLi" role="tab" data-toggle="tab">关联度详情</a></li>
+				</ul>
+				<!-- Tab panes -->
+				<div class="tab-content">
+
+					<div role="tabpanel" class="tab-pane active" id="interPlanLi">
+						<!-- 标题 -->
+						<h3>日期选择</h3>
+						<hr />
+						<div class="form-inline">
+						<select class="form-control"
+								style="width: 150px; display: inline-block" id="dateSelect" name="dateSelect">
+							<option value="-1"></option>
+							<option th:if="${oneDateStat.index<=4}" th:each="oneDate,oneDateStat:${date}" th:value="${oneDate['DATA_DATE']}" th:text="${oneDate['DATA_DATE']}"></option>
+						</select><button type="button" id="dateBtn" class="btn btn-default" data-toggle="modal" data-target="#myModal">
+							<i class="glyphicon glyphicon-forward"></i>
+						</button>
+							</div>
+						<br>
+						<div id="mrDataTip"></div>
+						<!-- 标题 -->
+						<h3>图形大小系数</h3>
+						<hr />
+						<div class="form-inline">
+						&nbsp;<input type="text" id="imgCoeff" value="1" class="form-control"  style="width: 100px;" /><input id="repaintBtn" class="btn btn-primary" type="button" value="重绘" name="clearCoverPolygon" style="margin-right: 0px;"/>
+						<br/>当(0<系数值<1)时，图形缩小；当(系数值>1)时，图形放大
+						<!-- 折线图形大小系数&nbsp; --><input type="hidden" id="imgSizeCoeff" value="10"/>
+						<!-- (默认值10，输入数字且k大于0.001小于10000 限制图1,2) -->
+						</div>
+						<hr/>
+						<input id="clearCoverPolygon" class="btn btn-primary" type="button" value="清除覆盖图" name="clearCoverPolygon" style="margin-right: 0px;"/>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="interDetailsLi">
+						<span id="title"></span>
+							<table class="table table-hover" id="interDetailTab"  width="100%" height="30px" style="text-align:center;" border="1px" cellspacing="1px">
+								<thead>
+								<tr>
+									<th>主小区</th><th>邻小区</th><th>关联度1</th><th>关联度2</th><th>采样点1</th><th>采样点2</th><th>距离(米)</th>
+								</tr>
+								</thead>
+							</table>
+					</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 显示小区名 -->
+<div id="tooltip" style="color: red"></div>
+<!--日期遮罩层-->
+<div class="row style-select modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+	 aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel"></h4>
+			</div>
+			<div class="modal-body" style="margin-top: 1px">
+				<div class="row">
+					<div class="col-xs-5">
+						<h5 class="modal-title" id="myModalLabel1"  th:text="'可选'+${#lists.size(date)}+'个,双击可添加'"></h5>
+					</div>
+					<div class="col-xs-2"></div>
+					<div class="col-xs-5">
+						<h5 class="modal-title" id="myModalLabel2"></h5>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-5">
+						<select name="from[]" id="search" class="form-control" size="16" multiple="multiple"
+								style="height: 280px; width: 220px; overflow: auto;">
+							<option th:each="oneDate,oneDateStat:${date}" th:text="${oneDate['DATA_DATE']}"></option>
+						</select>
+					</div>
+
+					<div class="col-xs-2">
+						<br>
+						<button type="button" id="search_rightSelected" class="btn btn-block">
+							<i class="glyphicon glyphicon-chevron-right"></i>
+						</button>
+						<br>
+						<button type="button" id="search_rightAll" class="btn btn-block">
+							<i class="glyphicon glyphicon-forward"></i>
+						</button>
+						<br> <br> <br>
+						<button type="button" id="search_leftAll" class="btn btn-block">
+							<i class="glyphicon glyphicon-backward"></i>
+						</button>
+						<br>
+						<button type="button" id="search_leftSelected" class="btn btn-block">
+							<i class="glyphicon glyphicon-chevron-left"></i>
+						</button>
+					</div>
+
+					<div class="col-xs-5">
+						<select name="to[]" id="search_to" class="form-control" size="16" multiple="multiple"
+								style="height: 280px; width: 220px; overflow: auto;"></select>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<div style="float: left; margin-top: -10px; margin-bottom: -20px">
+					<p id="searching"></p>
+				</div>
+				<div style="float: right; margin-top: -10px; margin-bottom: -20px">
+					<div class="form-group form-inline">
+						<input type="button" id=ensure class="form-control  btn btn-success" value="确定" />
+						<input type="button" id=cancle class="form-control  btn btn-info" data-dismiss="modal" value="取消" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

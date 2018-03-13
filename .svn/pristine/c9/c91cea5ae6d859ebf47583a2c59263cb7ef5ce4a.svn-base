@@ -1,0 +1,79 @@
+package com.hgicreate.rno.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
+@Data
+public class Area implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	private long areaId;
+	private String name;
+	private long parentId;
+	private String areaLevel;
+	private String entityType;
+	private long entityId;
+	private double lon;
+	private double lat;
+	private String path;
+	private Date createTime;
+	private Date updateTime;
+
+	public static Area fromMap(Map<String, Object> map) {
+		//System.out.println("map=="+map);
+		if (map == null) {
+			return null;
+		}
+		Area area = new Area();
+		if (map.containsKey("AREA_ID") && map.get("AREA_ID")!=null) {
+			try {
+				area.areaId=Long.valueOf(map.get("AREA_ID").toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (map.containsKey("NAME")) {
+			area.name=(String)map.get("NAME");
+		}
+
+		if (map.containsKey("AREA_LEVEL")) {
+			area.areaLevel=map.get("AREA_LEVEL").toString();
+		}
+
+		if(map.containsKey("PATH")){
+			area.path=map.get("PATH").toString();
+		}
+
+		if(map.containsKey("LONGITUDE") && map.get("LONGITUDE")!=null){
+			try {
+				if (map.get("LONGITUDE")!=null) {
+					area.lon=Double.valueOf(map.get("LONGITUDE").toString());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if(map.containsKey("LATITUDE") && map.get("LATITUDE") !=null){
+			try {
+				if (map.get("LATITUDE")!=null) {
+			area.lat=Double.valueOf(map.get("LATITUDE").toString());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (map.containsKey("PARENT_ID") && map.get("PARENT_ID")!=null) {
+			try {
+				if (map.get("PARENT_ID")!=null) {
+				area.parentId=Long.valueOf(map.get("PARENT_ID").toString());
+				}
+				} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("map.get(\"PARENT_ID\")=="+map.get("PARENT_ID"));
+			}
+		}
+		return area;
+	}
+}

@@ -1,0 +1,15 @@
+package com.hgicreate.rno.lte.web.model.structanls;
+
+import lombok.Data;
+
+@Data
+public class MetricsSummary {
+    private String cellId;
+    private String cellName;
+    private String weakFlag;
+    private String overlapFlag;
+    private int overCnt;
+    private String overFlag;
+    private int over16Cnt;
+    private String over16Flag;
+}

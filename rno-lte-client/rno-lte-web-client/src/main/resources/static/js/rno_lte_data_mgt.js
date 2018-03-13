@@ -1,0 +1,252 @@
+$(document).ready(function () {
+    // 绑定事件
+    bindEvent();
+
+    // 切换区域
+    initAreaCascade(areaObj, 'provinceId', 'cityId');
+
+    // 默认加载结构分析
+    getDataRecordList();
+});
+
+/**
+ * 绑定事件
+ */
+function bindEvent() {
+    // 绑定任务查询按钮
+    $("#queryTasks").click(function () {
+        getTaskList();
+    });
+
+    // 重定向至新增结构分析任务
+    $("#addOneTask").click(function () {
+        var form = $("#createTaskForm");
+        form.find("input[name='cityId']").val($("#cityId").val());
+        form.submit();
+    });
+
+    $("#searchBtn").click(function () {
+        getDataRecordList();
+    });
+
+    $("#importBtn").click(function () {
+        importFile();
+    });
+
+    $('input[name=file]').change(function () {
+        $('#photoCover').val($(this).val());
+    });
+
+}
+
+/**
+ * 按条件查询
+ */
+function getDataRecordList() {
+    // 重置分页条件
+    initFormPage('dataMgtForm');
+    // 提交表单
+    queryDataRecordListForm();
+}
+
+function queryDataRecordListForm() {
+    $.ajax({
+        url: 'dataMgt/data',
+        data: $("#dataMgtForm").serialize(),
+        type: 'get',
+        dataType: 'json',
+        beforeSend: function () {
+            showOperTips("loadingDataDiv", "loadContentId", "正在提交LTE结构优化分析任务");
+        },
+        success: function (result) {
+            try {
+                if (result['result'] !== 'success') {
+                    showInfoInAndOut("info", result['msg']);
+                } else {
+                    showDataRecordList(result);
+                }
+            } catch (err) {
+            }
+        },
+        error: function (result) {
+            try {
+                showInfoInAndOut("info", result['msg']);
+            } catch (err) {
+            }
+        },
+        complete: function () {
+            hideOperTips("loadingDataDiv");
+        }
+    });
+}
+
+function showDataRecordList(data) {
+    if (data === null || data === undefined) {
+        return;
+    }
+
+    var table = $("#dataRecordListTab");
+    // 清空结构分析任务详情列表
+    table.find("tr:gt(0)").remove();
+
+    var list = data['data'];
+    var tr = "";
+    var one = "";
+    var dataJob;
+    var job;
+    var area;
+    var status;
+
+    var dateFormat = "yyyy-MM-dd HH:mm:ss";
+
+    var options = $("select[name='dataType'] option");
+    var dataType;
+    var dataTypeShow = "";
+
+    for (var i = 0; i < list.length; i++) {
+        one = list[i];
+
+        tr += "<tr role='row'>";
+
+        dataType = getValidValue(one['dataType'], '');
+        options.each(function () {
+            var $option = $(this);
+            if (dataType === $option.val()){
+                dataTypeShow = $option.text();
+            }
+        });
+        tr += "<td>" + dataTypeShow + "</td>";
+
+        area = one["area"];
+        if (area === null || area === undefined){
+            tr += "<td></td>";
+        }else {
+            tr += "<td>" + getValidValue(area['name'], '') + "</td>";
+        }
+
+        dataJob = one["dataJob"];
+        if (dataJob === null || dataJob === undefined){
+            tr += "<td></td>";
+            tr += "<td></td>";
+            tr += "<td></td>";
+            tr += "<td>" + formatDateTime(one['analysisTime'],dateFormat) + "</td>";
+            tr += "<td></td>";
+            tr += "<td></td>";
+        }else {
+            tr += "<td>" + getValidValue(dataJob['oriFilename'], '') + "</td>";
+
+            job = dataJob["job"];
+            if (job === null || job === undefined){
+                tr += "<td></td>";
+                tr += "<td></td>";
+                tr += "<td>" + formatDateTime(one['analysisTime'],dateFormat) + "</td>";
+                tr += "<td></td>";
+                tr += "<td></td>";
+            }else {
+                tr += "<td>" + formatDateTime(job['createTime'],dateFormat) + "</td>";
+                tr += "<td>" + formatDateTime(one['analysisTime'],dateFormat) + "</td>";
+
+                tr += "<td>" + getValidValue(job['creator'], '') + "</td>";
+                status = getValidValue(job['jobRunningStatus'], '');
+                if (status === "Waiting") {
+                    tr += "<td>排队中</td>";
+                } else if (status === "Launched" || status === "Running") {
+                    tr += "<td>运行中</td>";
+                } else if (status === "Stopping") {
+                    tr += "<td>停止中</td>";
+                } else if (status === "Stopped") {
+                    tr += "<td>已停止</td>";
+                } else if (status === "Fail") {
+                    tr += "<td style='color:red;'>异常终止</td>";
+                } else if (status === "Succeeded") {
+                    tr += "<td>正常完成</td>";
+                } else {
+                    tr += "<td>" + status + "</td>";
+                }
+            }
+        }
+
+        tr += "</tr>";
+    }
+    table.append(tr);
+    // 设置隐藏的page信息
+    setFormPageInfo("dataMgtForm", data['page']);
+    // 设置分页面板
+    setPageView(data['page'], "dataRecordListBar");
+}
+
+function importCheck() {
+    var dataType = $("#dataType").val();
+    if (dataType === "ALL") {
+        showInfoInAndOut("info", "请选择数据类型！");
+        return false;
+    }
+    var file = $('input[name=file]').val();
+    if (file === null || file === undefined || file === '') {
+        showInfoInAndOut("info", "请选择文件！");
+        return false;
+    }
+    return true;
+}
+
+function importFile() {
+    var formData = new FormData($("#dataMgtForm")[0]);
+    $.ajax({
+        url: 'dataMgt/data',
+        type: 'post',
+        data: formData,
+        dataType: 'json',
+        processData: false,
+        contentType: false,
+        beforeSend: function () {
+            $("#importBtn").attr("disabled", true);
+            if (!importCheck()) {
+                $("#importBtn").attr("disabled", false);
+                return false;
+            }
+        },
+        xhr: function () {
+            var xhr = $.ajaxSettings.xhr();
+            //Upload progress
+            xhr.upload.onprogress = progressFunction;
+            //Download progress
+            xhr.addEventListener("progress", function (evt) {
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+                    //Do something with download progress
+                    console.log(percentComplete);
+                }
+            }, false);
+            return xhr;
+        },
+        success: function (result) {
+            try {
+                showInfoInAndOut("info", result['msg']);
+            } catch (err) {
+            }
+        },
+        error: function (result) {
+            try {
+                showInfoInAndOut("info", result['msg']);
+            } catch (err) {
+            }
+        },
+        complete: function () {
+            $("#importBtn").attr("disabled", false);
+        }
+    });
+}
+
+function progressFunction(evt) {
+    if (evt.lengthComputable) {
+        var progressDiv = $("#progressDiv");
+        progressDiv.show();
+        var progressBar = progressDiv.find("progress");
+        var percentageDiv = progressDiv.find("span");
+        progressBar.val(evt.loaded);
+        percentageDiv.text(Math.round(evt.loaded / evt.total * 100) + "%");
+        if (evt.loaded == evt.total) {
+            progressDiv.hide();
+        }
+    }
+}

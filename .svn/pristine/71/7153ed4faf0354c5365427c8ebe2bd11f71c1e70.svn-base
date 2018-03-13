@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>广东移动PCI优化及天线评估系统</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <!-- webjars -->
+    <link rel="stylesheet"
+          href="/webjars/bootstrap/3.3.7/css/bootstrap.css"
+          th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+
+    <link rel="stylesheet"
+          href="/webjars/font-awesome/4.7.0/css/font-awesome.css"
+          th:href="@{/webjars/font-awesome/css/font-awesome.min.css}">
+
+    <script src="/webjars/jquery/3.1.1/jquery.js"
+            th:src="@{/webjars/jquery/jquery.min.js}"></script>
+
+    <script src="/webjars/bootstrap/3.3.7/js/bootstrap.js"
+            th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+    <!-- lib -->
+    <link rel="stylesheet"
+          href="/static/lib/sb-admin2-sidebar-toggle-collapse/css/sb-admin-2.css"
+          th:href="@{/lib/sb-admin2-sidebar-toggle-collapse/css/sb-admin-2.css}">
+
+    <script src="/static/lib/sb-admin2-sidebar-toggle-collapse/js/sb-admin-2.js"
+            th:src="@{/lib/sb-admin2-sidebar-toggle-collapse/js/sb-admin-2.js}"></script>
+
+    <!-- 自定义 -->
+    <link rel="stylesheet" href="/static/css/index.css" th:href="@{/css/index.css}">
+
+    <script src="/static/js/index.js" th:src="@{/js/index.js}"></script>
+    <script src="/static/js/extend.js" th:src="@{/js/extend.js}"></script>
+</head>
+<body  style="overflow: hidden;">
+<div id="pageLoading"></div>
+<header>
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <a class="navbar-brand" style="font-size: 25px">广东移动PCI优化及天线评估系统</a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <div class="menu-toggler sidebar-toggler">
+
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </div>
+
+            <ul class="nav navbar-top-links navbar-right">
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" >
+                        <i class="fa fa-user fa-fw"></i> <span id="username" th:text="*{session.user.fullName?:session.user.username}">rnodev</span>
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="#"><i class="fa fa-user fa-fw"></i> 用户信息</a>
+                        </li>
+                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> 设置</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="/logout" th:href="@{/logout}"><i class="fa fa-sign-out fa-fw"></i> 注销</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+        </div>
+        <!-- /.navbar-header -->
+    </nav>
+</header>
+
+<div id="wrapper">
+    <!-- Navigation --><!--SideBar侧边栏-->
+    <nav role="navigation" style="margin-top: 51px ">
+        <div class="navbar sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse" id="sidebar-area">
+                <ul class="nav" id="sidebar">
+                    <li class="active">
+                        <a href="#" class="dropdown-collapse"><i class="fa fa-wrench fa-fw" aria-hidden="true"></i> <span
+                                class="side-menu-title">PCI优化</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse in">
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'1\',title:\'干扰矩阵计算\',close:\'true\',url:\''+${@environment.getProperty('rno.lte.proxy.url')}+'/rno-lte-web-client/interferMatrix?account='+${session.user.username}+'\'});'">
+                                    <i class="fa fa-calculator fa-fw" aria-hidden="true"></i> 干扰矩阵计算
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'2\',title:\'小区PCI评估\',close:\'true\',url:\''+${@environment.getProperty('rno.lte.proxy.url')}+'/rno-lte-gis-client/pciEvaluateMapPage?account='+${session.user.username}+'\'});'">
+                                    <i class="fa fa-eye fa-fw" aria-hidden="true"></i> 小区PCI评估
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'3\',title:\'区域PCI翻频\',close:\'true\',url:\''+${@environment.getProperty('rno.lte.proxy.url')}+'/rno-lte-web-client/pciAfp?account='+${session.user.username}+'\'});'">
+                                    <i class="fa fa-cogs fa-fw" aria-hidden="true"></i> 区域PCI翻频
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-collapse"><i class="fa fa-rss fa-fw" aria-hidden="true"></i> <span
+                                class="side-menu-title">天线评估</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'4\',title:\'天线方位角评估\',close:\'true\',url:\''+${@environment.getProperty('rno.lte.proxy.url')}+'/rno-lte-web-client/azimuthEvaluation?account='+${session.user.username}+'\'});'">
+                                    <i class="fa fa-paper-plane-o fa-fw" aria-hidden="true"></i> 天线方位角评估
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'5\',title:\'LTE动态覆盖图\',close:\'true\',url:\''+${@environment.getProperty('rno.lte.proxy.url')}+'/rno-lte-gis-client/dynamicCoverageMapPage?account='+${session.user.username}+'\'});'">
+                                    <i class="fa fa-paw fa-fw" aria-hidden="true"></i> LTE动态覆盖图
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'6\',title:\'LTE结构优化\',close:\'true\',url:\''+${@environment.getProperty('rno.lte.proxy.url')}+'/rno-lte-web-client/structureAnalysis?account='+${session.user.username}+'\'});'">
+                                    <i class="fa fa-sitemap fa-fw" aria-hidden="true"></i> LTE结构优化
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a href="#" class="dropdown-collapse"><i class="fa fa-server fa-fw" aria-hidden="true"></i> <span
+                                class="side-menu-title">系统管理</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'7\',title:\'用户管理\',close:\'true\',url:\'/user-manager\'});'">
+                                    <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i> 用户管理
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'8\',title:\'数据管理\',close:\'true\',url:\'/data-manager\'});'">
+                                    <i class="fa fa-database fa-fw" aria-hidden="true"></i> 数据管理
+                                </a>
+                            </li>
+                            <li>
+                                <a th:href="'javascript:bs.addTabs({id:\'9\',title:\'系统设置\',close:\'true\',url:\'/system-config\'});'">
+                                    <i class="fa fa-cog fa-fw" aria-hidden="true"></i> 系统设置
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.navbar-static-side -->
+    </nav>
+
+    <!-- Page Content -->
+    <div id="page-wrapper">
+        <div class="page-content">
+            <div class="row" >
+                <div class="col-lg-12">
+                    <div style="margin-left: -25px;margin-right:-25px">
+                    <ul class="closeable-tabs nav nav-tabs">
+
+                    </ul>
+                    </div>
+                    <div class="tab-content" style="margin-left: -25px;margin-right:-25px" id="mainDiv">
+                        <div id="workZonesiteFrame_">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="footermaindiv">
+    <div id="footer">
+        <div class="copyright">2017 © 广东海格怡创科技有限公司</div>
+    </div>
+</div>
+</body>
+</html>

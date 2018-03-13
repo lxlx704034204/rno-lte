@@ -1,0 +1,165 @@
+package com.hgicreate.rno.controller;
+
+import com.hgicreate.rno.model.Area;
+import com.hgicreate.rno.model.Cell;
+import com.hgicreate.rno.model.CellMgrCond;
+import com.hgicreate.rno.model.Page;
+import com.hgicreate.rno.service.CommonRestClient;
+import com.hgicreate.rno.tool.ExcelFileTool;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
+
+@RestController
+@SessionAttributes("account")
+@RequestMapping("/lteCellQueryPage")
+public class RnoLteCellQueryController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(RnoLteCellQueryController.class);
+
+	private final CommonRestClient commonRestClient;
+
+    public RnoLteCellQueryController(CommonRestClient commonRestClient) {
+        this.commonRestClient = commonRestClient;
+    }
+
+	/**
+	 *  必须绑定一个已经存在的对象，如果不存在，那么需要先定义
+	 */
+	@ModelAttribute("account")
+	public String user(String account) {
+		return account == null ? "" : account;
+	}
+
+    /**
+     * LTE小区查询页面
+     */
+    @GetMapping
+    ModelAndView index(Map<String, Object> model, String account, SessionStatus sessionStatus) {
+		logger.debug("LTE小区查询页面。account={}", account);
+
+		if (!commonRestClient.verifyUserIdentity(account)) {
+			model.put("error", "非法登录用户，请选择正常渠道登录，谢谢！");
+			sessionStatus.setComplete();
+			return new ModelAndView("rno_fail");
+		}
+		logger.debug("commonRestClient.getAreaByAccount(account, -1)={}",commonRestClient.getAreaByAccount(account, -1));
+		model.put("areaObj", commonRestClient.getAreaByAccount(account, -1));
+		return new ModelAndView("rno_lte_cell_query");
+    }
+
+    /**
+	 * 分页查询CELLS
+	 */
+	@RequestMapping("/queryCellsByPage")
+    @ResponseBody
+	Map<String, Object> queryCellsByPage(HttpServletRequest request) {
+		
+		logger.debug("queryCellsByPage.fieldSelect={},citySelect={},cellId={},cellName={},enodebId={},pci={}", request.getParameter("fieldSelect"),
+				request.getParameter("citySelect"),request.getParameter("cellId"),request.getParameter("cellName"),request.getParameter("enodebId"),request.getParameter("pci"));
+		Map<String, Object> result = new HashMap<String, Object>();
+
+		String citySelect = request.getParameter("citySelect").trim();
+		String cellId = request.getParameter("cellId").trim();
+		String cellName = request.getParameter("cellName").trim();
+		String enodebId = request.getParameter("enodebId").trim();
+		String pci= request.getParameter("pci").trim();
+        List<Long> areas = new ArrayList<Long>();
+		CellMgrCond cellMgrCond = new CellMgrCond();
+		if(""!=citySelect){
+			String cityIds[]= citySelect.split(",");
+			for (String s : citySelect.split(",")) {
+				areas.add(Long.parseLong(s));
+			}
+		}
+		cellMgrCond.setAreaIds(areas);
+		if (""!=cellId){
+			cellMgrCond.setCellId(cellId);
+		}
+		if(""!=cellName){
+			cellMgrCond.setCellName(cellName);
+		}
+		    cellMgrCond.setCurrentPage(Integer.parseInt(request.getParameter("hiddenCurrentPage")));
+		if (""!=enodebId){
+			cellMgrCond.setENodeB(enodebId);
+		}
+		cellMgrCond.setPageSize(Integer.parseInt(request.getParameter("hiddenPageSize")));
+		if(""!=pci){
+			cellMgrCond.setPci(Integer.parseInt(pci));
+		}
+		logger.debug("cellMgrCond="+cellMgrCond);
+		PagedResources<Cell> res = commonRestClient.findByPage(cellMgrCond);
+        logger.debug("分页数据 res={}",res);
+
+		result.put("data", res);
+		return result;
+	}
+
+	/**
+	 * 导出CELLS
+	 */
+	@RequestMapping("/exportCells")
+	void exportCells(javax.servlet.http.HttpServletRequest request, HttpServletResponse resp) throws Exception {
+		logger.debug("进入RnoLteCellQueryController.exportCells()");
+
+		String fileName = "CELLS小区.xlsx";
+		try {
+			fileName = new String(fileName.getBytes("UTF-8"), "iso-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} // 为了解决中文名称乱码问题
+
+		resp.setContentType("application/x.ms-excel");
+		resp.setHeader("Content-disposition", "attachment;filename=" + fileName);
+
+		String citySelect = request.getParameter("citySelect").trim();
+		String cellId = request.getParameter("cellId").trim();
+		String cellName = request.getParameter("cellName").trim();
+		String enodebId = request.getParameter("enodebId").trim();
+		String pci= request.getParameter("pci").trim();
+		String fieldSelect = request.getParameter("fieldSelect").trim();
+		List<Long> areas = new ArrayList<Long>();
+		CellMgrCond cellMgrCond = new CellMgrCond();
+		if(""!=citySelect){
+			String cityIds[]= citySelect.split(",");
+			for (String s : citySelect.split(",")) {
+				areas.add(Long.parseLong(s));
+			}
+		}
+		cellMgrCond.setAreaIds(areas);
+		if (""!=cellId){
+			cellMgrCond.setCellId(cellId);
+		}
+		if(""!=cellName){
+			cellMgrCond.setCellName(cellName);
+		}
+		cellMgrCond.setCurrentPage(Integer.parseInt(request.getParameter("hiddenCurrentPage")));
+		if (""!=enodebId){
+			cellMgrCond.setENodeB(enodebId);
+		}
+		cellMgrCond.setPageSize(Integer.parseInt(request.getParameter("hiddenPageSize")));
+		if(""!=pci){
+			cellMgrCond.setPci(Integer.parseInt(pci));
+		}
+
+		Map<String, List<Cell>> map = new LinkedHashMap<>();
+		List<Cell>  cells= commonRestClient.findAll(cellMgrCond);
+		logger.debug("cells大小={}",cells.size());
+		map.put("Sheet0", cells);
+
+		boolean flag = ExcelFileTool.createCellsExcel(resp, map,fieldSelect);
+		if(flag){
+			logger.debug("成功导出小区数据！");
+		}else {
+			logger.debug("导出小区数据失败！");
+		}
+	}
+}

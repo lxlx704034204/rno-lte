@@ -1,0 +1,37 @@
+server.port=8090
+# datasource config
+spring.datasource.url=jdbc:oracle:thin:@192.168.6.40:1521:testora
+spring.datasource.username=rno_pci
+spring.datasource.password=123456
+spring.datasource.driverClassName=oracle.jdbc.OracleDriver
+# eureka config
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+#eureka.client.serviceUrl.defaultZone=http://192.168.6.71:8761/eureka/
+#endpoints config
+endpoints.restart.enabled=true
+# security
+management.security.enabled=false
+# logback
+logging.level.root=info
+logging.level.com.hgicreate.rno.lte.common=debug
+# jpa
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.id.new_generator_mappings=true
+#
+#rno.file-handler=local
+rno.file-handler=ftp
+# local
+rno.file-dir-local=D:/tmp/import
+# ftp
+#rno.ftp-host=192.168.6.70
+#rno.ftp-port=21
+#rno.ftp-username=anonymous
+#rno.ftp-password=
+#rno.ftp-dir=/data/test
+rno.ftp-host=192.168.6.71
+rno.ftp-port=21
+rno.ftp-username=boco
+rno.ftp-password=123456
+rno.ftp-dir=data
+# job
+rno.job-type-code.azimuth-eval=RNO_LTE_AZIMUTH_EVALUATION

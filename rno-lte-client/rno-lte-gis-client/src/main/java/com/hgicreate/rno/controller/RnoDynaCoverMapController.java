@@ -1,0 +1,154 @@
+package com.hgicreate.rno.controller;
+
+import com.alibaba.fastjson.JSONObject;
+import com.hgicreate.rno.model.Area;
+import com.hgicreate.rno.service.CommonRestClient;
+import com.hgicreate.rno.service.RnoGisService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * Created by chao_xj on 2017/2/27.
+ */
+@RestController
+@SessionAttributes("account")
+@RequestMapping("/dynamicCoverageMapPage")
+public class RnoDynaCoverMapController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RnoDynaCoverMapController.class);
+
+    private RnoGisService rnoGisService;
+
+    private CommonRestClient commonRestClient;
+
+    public RnoDynaCoverMapController(RnoGisService rnoGisService,CommonRestClient commonRestClient) {
+        this.rnoGisService = rnoGisService;
+        this.commonRestClient = commonRestClient;
+    }
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     *  必须绑定一个已经存在的对象，如果不存在，那么需要先定义
+     */
+    @ModelAttribute("account")
+    public String user(String account) {
+        return account == null ? "" : account;
+    }
+
+    /**
+     * 获取用户权限下的区域
+     */
+    @GetMapping
+    ModelAndView index(Map<String, Object> model, String account, SessionStatus sessionStatus) {
+        logger.debug("访问动态覆盖地图首页,account={}",account);
+
+        if (!commonRestClient.verifyUserIdentity(account)) {
+            model.put("error", "非法登录用户，请选择正常渠道登录，谢谢！");
+            sessionStatus.setComplete();
+            return new ModelAndView("rno_fail");
+        }
+        List<Area> citiesList = commonRestClient.getAreaByAccount(account, -1);
+        logger.debug("commonRestClient.getAreaByAccount(account, -1)={}",citiesList);
+        model.put("areaObj", citiesList);
+        logger.debug("citiesList.get(0).getId()={}",citiesList.get(0).getChildren().get(0).getId());
+        List<Date> dates = commonRestClient.findByAreaIdAndDataType(citiesList.get(0).getChildren().get(0).getId(),"MR");
+        Date date;
+        String dateStr;
+        List<Map<String,String>> dateLists = new ArrayList<Map<String,String>>();
+        Map<String,String> map ;
+        for (int i = 0 ;i<dates.size();i++){
+            date = dates.get(i);
+            dateStr = sdf.format(date);
+            map = new HashMap<String,String>();
+            map.put("DATA_DATE",dateStr);
+            dateLists.add(map);
+        }
+        model.put("date",dateLists);
+        logger.debug("res={}",model);
+        return new ModelAndView("rno_4g_dynamic_coverage");
+    }
+
+    /**
+     *4G动态覆盖数据
+     */
+    @RequestMapping(value = "/get4GDynaCoverageData2ForAction", method = RequestMethod.POST)
+    String get4GDynaCoverageData2ForAction(
+            @RequestParam("lteCellId") String lteCellId, @RequestParam("cityId") long cityId,
+            @RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate,
+            @RequestParam("imgCoeff") double imgCoeff, @RequestParam("imgSizeCoeff") double imgSizeCoeff) {
+        Map<String,Object> params =  new HashMap<String,Object>();
+        params.put("lteCellId",lteCellId);
+        params.put("cityId",cityId);
+        params.put("startDate",startDate);
+        params.put("endDate",endDate);
+        params.put("imgCoeff",imgCoeff);
+        params.put("imgSizeCoeff",imgSizeCoeff);
+        String result = JSONObject.toJSONString(rnoGisService.get4GDynaCoverageData2ForAction(lteCellId, cityId, startDate, endDate, imgCoeff, imgSizeCoeff));
+        logger.debug("get4GDynaCoverageData2ForAction  返回result=="+result);
+        return result;
+    }
+
+    /**
+     *动态覆盖IN干扰
+     */
+    @RequestMapping(value = "/get4GDynaCoverageInInferDataForAction", method = RequestMethod.POST)
+    String get4GDynaCoverageInInferDataForAction(
+            @RequestParam("lteCellId") String lteCellId, @RequestParam("cityId") long cityId,
+            @RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) {
+        Map<String,Object> params =  new HashMap<String,Object>();
+        params.put("lteCellId",lteCellId);
+        params.put("cityId",cityId);
+        params.put("startDate",startDate);
+        params.put("endDate",endDate);
+        String result = JSONObject.toJSONString(rnoGisService.get4GDynaCoverageInInferDataForAction(lteCellId, cityId, startDate, endDate));
+        logger.debug("get4GDynaCoverageInInferDataForAction  返回result=="+result);
+        return result;
+    }
+
+    /**
+     *动态覆盖OUT干扰
+     */
+    @RequestMapping("/get4GDynaCoverageOutInferDataForAction")
+    String get4GDynaCoverageOutInferDataForAction(
+            @RequestParam("lteCellId") String lteCellId, @RequestParam("cityId") long cityId,
+            @RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) {
+        Map<String,Object> params =  new HashMap<String,Object>();
+        params.put("lteCellId",lteCellId);
+        params.put("cityId",cityId);
+        params.put("startDate",startDate);
+        params.put("endDate",endDate);
+        String result = JSONObject.toJSONString(rnoGisService.get4GDynaCoverageOutInferDataForAction(lteCellId, cityId, startDate, endDate));
+        logger.debug("get4GDynaCoverageOutInferDataForAction  返回result=="+result);
+        return result;
+    }
+
+    /**
+     *通过市ID获取该市的MR数据测量日期
+     */
+    @RequestMapping("/findByAreaIdAndDataType")
+    String findDateByAreaIdAndDataTypeForAction(@RequestParam("cityId") long cityId,@RequestParam("dataType") String dataType  ){
+        logger.debug("进入findDateByAreaIdAndDataTypeForAction方法，cityId={},dataType={}",cityId,dataType);
+        List<Date> dates = commonRestClient.findByAreaIdAndDataType(cityId,dataType);
+        Date date;
+        String dateStr;
+        List<Map<String,String>> dateLists = new ArrayList<Map<String,String>>();
+        Map<String,String> map ;
+        for (int i = 0 ;i<dates.size();i++){
+            date = dates.get(i);
+            dateStr = sdf.format(date);
+            map = new HashMap<String,String>();
+            map.put("DATA_DATE",dateStr);
+            dateLists.add(map);
+        }
+        String result  = JSONObject.toJSONString(dateLists);
+        logger.debug("result={}",result);
+        return result;
+    }
+}

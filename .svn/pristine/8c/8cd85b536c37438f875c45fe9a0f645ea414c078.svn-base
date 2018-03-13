@@ -1,0 +1,31 @@
+# app config
+server.port=8093
+# spark DB Connection Setting
+spring.datasource.url=jdbc:hive2://192.168.6.101:10016/dev
+spring.datasource.username=hive
+spring.datasource.password=
+spring.datasource.driverClassName=org.apache.hive.jdbc.HiveDriver
+# eureka config
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+#断路器超时，需与负载均衡超时配合使用，否则将出现多次重复动作
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=40000
+#负载均衡读取超时，应不小于断路器超时
+ribbon.ReadTimeout=60000
+#负载均衡连接超时，一般与读取超时相等
+ribbon.ConnectTimeout=60000
+# spark mybatis config
+# 自动进行驼峰到下划线的转换。对所有数据库的字段统一采用下划线连接，可以不考虑区分大小写的兼容性问题。
+mybatis.configuration.mapUnderscoreToCamelCase=true
+# rno setting
+#rno.run-mode=scheduler
+rno.run-mode=always
+# 2000 be fine
+rno.batch=5000
+rno.scheduler.fixed-delay=10000
+# job
+rno.job-type-code=RNO_LTE_STRUCT_ANLS
+rno.lte.service.common=rno-lte-common-service
+# logback
+logging.level.root=info
+logging.level.com.hgicreate.rno.lte=debug
+logging.level.com.hgicreate.rno.lte.mapper=debug

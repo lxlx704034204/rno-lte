@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hgicreate.rno.lte</groupId>
+    <artifactId>rno-lte-service</artifactId>
+    <packaging>pom</packaging>
+
+    <name>rno-lte-service</name>
+    <description>RNO LTE Service</description>
+
+    <parent>
+        <groupId>com.hgicreate.rno</groupId>
+        <artifactId>rno-lte</artifactId>
+        <version>1.0.0.M1</version>
+        <relativePath>..</relativePath> <!-- lookup parent from repository -->
+    </parent>
+
+    <modules>
+        <module>rno-lte-common-service</module>
+        <module>rno-lte-pci-afp-service</module>
+        <module>rno-lte-azimuth-evaluation-service</module>
+        <module>rno-lte-interference-matrix-service</module>
+        <module>rno-lte-structure-analysis-service</module>
+        <module>rno-lte-gis-service</module>
+    </modules>
+</project>

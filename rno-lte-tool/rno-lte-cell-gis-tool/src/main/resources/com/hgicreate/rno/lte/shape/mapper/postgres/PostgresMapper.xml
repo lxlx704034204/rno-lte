@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hgicreate.rno.lte.shape.mapper.postgres.PostgresMapper">
+    <sql id="gisTableCols">
+        insert into rno_lte_cell_geom (cell_Id,area_id,geom)
+        values
+    </sql>
+
+    <insert id="batchInsertOutdoorGisCell" parameterType="com.hgicreate.rno.lte.shape.model.GisCell">
+        <include refid="gisTableCols"/>
+        (#{cellId},#{areaId},
+          ST_Intersection(
+            ST_Buffer(ST_MakePoint(#{lon}, #{lat})::geography, #{radius})::geometry,
+            ST_GeomFromText(
+              concat('Polygon((',#{lon},' ',#{lat},',',#{sx},' ',#{sy},',',#{ex},' ',#{ey},',',#{lon},' ',#{lat},'))'),
+              4326
+            )
+          )
+        )
+    </insert>
+
+    <insert id="batchInsertIndoorGisCell" parameterType="com.hgicreate.rno.lte.shape.model.GisCell">
+        <include refid="gisTableCols"/>
+        (#{cellId},#{areaId},ST_Buffer(ST_MakePoint(#{lon}, #{lat})::geography, #{radius})::geometry)
+    </insert>
+
+    <delete id="deleteGisCellByCityId">
+        DELETE from rno_lte_cell_geom where area_id=#{cityId}
+    </delete>
+</mapper>

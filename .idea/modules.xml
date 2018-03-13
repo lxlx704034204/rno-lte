@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/rno-lte.iml" filepath="$PROJECT_DIR$/rno-lte.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-service/rno-lte-azimuth-evaluation-service/rno-lte-azimuth-evaluation-service.iml" filepath="$PROJECT_DIR$/rno-lte-service/rno-lte-azimuth-evaluation-service/rno-lte-azimuth-evaluation-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-tool/rno-lte-cell-gis-tool/rno-lte-cell-gis-tool.iml" filepath="$PROJECT_DIR$/rno-lte-tool/rno-lte-cell-gis-tool/rno-lte-cell-gis-tool.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-client/rno-lte-client.iml" filepath="$PROJECT_DIR$/rno-lte-client/rno-lte-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-service/rno-lte-common-service/rno-lte-common-service.iml" filepath="$PROJECT_DIR$/rno-lte-service/rno-lte-common-service/rno-lte-common-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-client/rno-lte-gis-client/rno-lte-gis-client.iml" filepath="$PROJECT_DIR$/rno-lte-client/rno-lte-gis-client/rno-lte-gis-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-service/rno-lte-gis-service/rno-lte-gis-service.iml" filepath="$PROJECT_DIR$/rno-lte-service/rno-lte-gis-service/rno-lte-gis-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-service/rno-lte-interference-matrix-service/rno-lte-interference-matrix-service.iml" filepath="$PROJECT_DIR$/rno-lte-service/rno-lte-interference-matrix-service/rno-lte-interference-matrix-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-tool/rno-lte-mr-parse-tool/rno-lte-mr-parse-tool.iml" filepath="$PROJECT_DIR$/rno-lte-tool/rno-lte-mr-parse-tool/rno-lte-mr-parse-tool.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-service/rno-lte-pci-afp-service/rno-lte-pci-afp-service.iml" filepath="$PROJECT_DIR$/rno-lte-service/rno-lte-pci-afp-service/rno-lte-pci-afp-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-service/rno-lte-service.iml" filepath="$PROJECT_DIR$/rno-lte-service/rno-lte-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-service/rno-lte-structure-analysis-service/rno-lte-structure-analysis-service.iml" filepath="$PROJECT_DIR$/rno-lte-service/rno-lte-structure-analysis-service/rno-lte-structure-analysis-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-tool/rno-lte-tool.iml" filepath="$PROJECT_DIR$/rno-lte-tool/rno-lte-tool.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-lte-client/rno-lte-web-client/rno-lte-web-client.iml" filepath="$PROJECT_DIR$/rno-lte-client/rno-lte-web-client/rno-lte-web-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-pci-platform/rno-pci-platform.iml" filepath="$PROJECT_DIR$/rno-pci-platform/rno-pci-platform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-registry/rno-registry.iml" filepath="$PROJECT_DIR$/rno-registry/rno-registry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rno-zuul-proxy/rno-zuul-proxy.iml" filepath="$PROJECT_DIR$/rno-zuul-proxy/rno-zuul-proxy.iml" />
+    </modules>
+  </component>
+</project>

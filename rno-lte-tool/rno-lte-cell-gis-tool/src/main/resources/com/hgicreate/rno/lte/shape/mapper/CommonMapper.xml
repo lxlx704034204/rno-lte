@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hgicreate.rno.lte.shape.mapper.CommonMapper">
+    <sql id="gisCellCols">
+        select t.Cell_Id,
+        t.Cell_Name,
+        t.Area_Id,
+        t.Band_Type,
+        t.Cover_Type,
+        t.Pci,
+        t.Azimuth,
+        t.Longitude as lon,
+        t.Latitude as lat,
+        t.Earfcn,
+        t.Station_Space
+        from Rno_Lte_Cell t
+    </sql>
+
+    <select id="listOutdoorGisCellByCityId" resultType="com.hgicreate.rno.lte.shape.model.GisCell">
+        <include refid="gisCellCols"/>
+        where t.Azimuth != -1
+          AND t.Cover_Type = '室外'
+          AND t.Area_Id = #{cityId}
+    </select>
+
+    <select id="listIndoorGisCellByCityId" resultType="com.hgicreate.rno.lte.shape.model.GisCell">
+        <include refid="gisCellCols"/>
+        where t.Cover_Type = '室内'
+        AND t.Area_Id = #{cityId}
+    </select>
+
+    <select id="findCity" resultType="Long">
+        select area_id from Rno_Lte_Cell t group by area_id
+    </select>
+
+    <update id="writeBackStationSpace" parameterType="com.hgicreate.rno.lte.shape.model.GisCell">
+        UPDATE Rno_Lte_Cell SET STATION_SPACE = #{stationSpace} WHERE CELL_ID = #{cellId} AND AREA_ID = #{areaId}
+    </update>
+</mapper>

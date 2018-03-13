@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+    <title>区域PCI翻频新算法</title>
+    <!--自定义-->
+    <script src="/static/js/rno_lte_pci_afp.js" th:src="@{/js/rno_lte_pci_afp.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        areaObj = /*[[${areaObj}]]*/ null;
+        /*]]>*/
+    </script>
+</head>
+<body>
+<!-- 数据加载遮罩层 -->
+<div th:replace="loading_cover :: loading_cover"></div>
+
+<span style="font-weight: bold;">当前位置： PCI优化 > 区域PCI翻频方案(新算法)</span>
+<br/>
+<div id="taskListDiv">
+    <!-- 结构分析任务查询条件 -->
+    <div style="width: 80%;margin-top: 20px; margin-left: 6%;">
+        <form id="taskListForm" th:action="@{/pciAfp/queryTaskByPage}" method="post">
+            <input type="hidden" name="pageSize" value="25"/>
+            <input type="hidden" name="currentPage" value="1"/>
+            <input type="hidden" name="totalPageCnt" value="0"/>
+            <input type="hidden" name="totalCnt" value="0"/>
+            <table class="main-table1 half-width" style="padding-top: 10px;">
+                <tr>
+                    <td class="menuTd" style="text-align: center">地市</td>
+                    <td class="menuTd" style="text-align: center">任务名称</td>
+                    <td class="menuTd" style="text-align: center">任务状态</td>
+                    <td class="menuTd" style="text-align: center">测量时间</td>
+                    <td class="menuTd" style="text-align: center">任务提交时间</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left">
+                        <label for="provinceId">省：</label>
+                        <select name="provinceId" class="required" id="provinceId" title="省名">
+                            <!--/*@thymesVar id="provinces" type="java.util.List<com.hgicreate.rno.lte.web.model.Area>"*/-->
+                            <option th:each="province:${provinces}" th:value="${province.id}"
+                                    th:text="${province.name}">广东省
+                            </option>
+                        </select>
+                        <br/>
+                        <label for="cityId">市：</label>
+                        <select name="cityId" class="required" id="cityId" title="城市名">
+                            <!--/*@thymesVar id="cities" type="java.util.List<com.hgicreate.rno.lte.web.model.Area>"*/-->
+                            <option th:each="city:${cities}" th:value="${city.id}" th:text="${city.name}">广州市
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" id="taskName" name="taskName" title="任务名称"/>
+                        <span id="nameErrorText" class="errorTips"></span>
+                    </td>
+                    <td style="text-align: left">
+                        <select name="taskStatus" title="任务状态">
+                            <option value="ALL">全部</option>
+                            <option value="LaunchedOrRunning">运行中</option>
+                            <option value="Succeeded">正常完成</option>
+                            <option value="Fail">异常终止</option>
+                            <option value="Waiting">排队中</option>
+                            <option value="Stopping">停止中</option>
+                            <option value="Stopped">已停止</option>
+                        </select>
+                    </td>
+                    <td><input id="meaTime" name="meaTime" class="short-input-text" type="text" readonly
+                               style="width: 132px;" title="测量时间"/></td>
+                    <td style="text-align: left">
+                        <label for="startSubmitTime">从</label>
+                        <input id="startSubmitTime" name="startSubmitTime" class="short-input-text" type="text" readonly
+                               style="width: 132px;" title="开始时间"/>
+                        <br/>
+                        <label for="endSubmitTime">到</label>
+                        <input id="endSubmitTime" name="endSubmitTime" class="short-input-text" type="text" readonly
+                               style="width: 132px;" title="结束时间"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" style=" text-align: left;">
+                        <div style="margin: 11px"></div>
+                        <input id="queryTasks" type="button" style="width: 90px; margin-right:70px;" value="查 询"/>
+                        <label><input name="mine" type="checkbox"/>只看我的任务</label>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <div style="width: 80%;margin-left: 6%;padding-top: 10px">
+        <table width="50%">
+            <tbody>
+            <tr>
+                <td style="width: 5%;white-space: nowrap;">
+                    <p><span style="font-weight: bold">计算任务列表</span></p>
+                </td>
+                <td style="width: 15%">
+                    <form id="createTaskForm" th:action="@{/pciAfp/createTask}" method="post" style="display:none"
+                          title="跳转">
+                        <input type="hidden" name="cityId"/>
+                    </form>
+                    <input id="addOneTask" type="button" style="width: 85px;" value="新增任务"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 结构分析详情列表 -->
+    <div style="width: 80%;margin-left: 6%;padding-top: 10px">
+        <table id="taskListTab" class="greystyle-standard" width="80%">
+            <thead>
+            <tr>
+                <th style="width: 8%">任务名称</th>
+                <th style="width: 8%">任务状态</th>
+                <th style="width: 8%">分析地区</th>
+                <th style="width: 8%">文件数量情况</th>
+                <th style="width: 8%">测试时间段</th>
+                <th style="width: 8%">启动时间</th>
+                <th style="width: 8%">完成时间</th>
+                <th style="width: 8%">操作</th>
+            </tr>
+            </thead>
+        </table>
+        <form id='downloadResultFileForm' th:action='@{/pciAfp/downloadResultFile}' method='post' style="display: none">
+            <input type='hidden' id='jobId' name='jobId' value=''/>
+        </form>
+        <div th:replace="paging_div :: paging_div('taskListPageBar', 'submitTaskListForm', 'taskListForm')"></div>
+    </div>
+</div>
+
+<!-- 查看job报告 -->
+<div th:replace="report_div :: report_div"></div>
+</body>
+</html>

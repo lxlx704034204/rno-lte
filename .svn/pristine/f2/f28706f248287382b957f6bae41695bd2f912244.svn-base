@@ -1,0 +1,29 @@
+configserver:
+  name: RNO Registry config server
+  status: Connected to the RNO Registry config server!
+  version: 1.0
+
+info.description: Using Central Config
+logging:
+  level:
+    com.hgicreate.rno: debug
+
+---
+
+spring:
+  profiles: uat
+eureka:
+  client.serviceUrl.defaultZone: http://192.168.6.41:8761/eureka/
+logging:
+  level:
+    com.hgicreate.rno: debug
+
+---
+
+spring:
+    profiles: prod
+eureka:
+    client.serviceUrl.defaultZone: http://192.168.50.20:8761/eureka/
+logging:
+  level:
+    com.hgicreate.rno: info

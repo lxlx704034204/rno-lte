@@ -1,0 +1,47 @@
+# SERVICE VERSION
+info:
+  version: @project.version@
+
+server:
+  port: 8761
+
+spring:
+  application.name: rno-registry
+  profiles.include: native
+  cloud:
+    config:
+      server:
+        prefix: /config
+        native.search-locations: file:./central-config
+
+eureka:
+  environment: 开发环境
+  datacenter: RNO-DEV
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  instance.prefer-ip-address: true
+
+---
+
+spring:
+  profiles: uat
+  cloud:
+    config:
+      server:
+        native.search-locations: file:/opt/rno-lte/rno-registry/central-config
+eureka:
+  environment: UAT
+  datacenter: RNO-UAT
+
+---
+
+spring:
+  profiles: prod
+  cloud:
+    config:
+      server:
+        native.search-locations: file:/opt/rno-lte/rno-registry/central-config
+eureka:
+  environment: PROD
+  datacenter: RNO-PROD

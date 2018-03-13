@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+    <title>新计算参数信息</title>
+    <!--自定义-->
+    <script src="/static/js/rno_lte_pci_afp_param.js" th:src="@{/js/rno_lte_pci_afp_param.js}"></script>
+    <style type="text/css">
+        .paramTable {
+            margin: auto;
+            padding: auto;
+            width: 100%;
+            border: 8px;
+        }
+
+        .paramTable th {
+            padding: 0 10px;
+            background: #25B4C3;
+            color: #444;
+            white-space: nowrap;
+            border: #a7a7a7 2px solid;
+            line-height: 30px;
+            font-size: 14px;
+        }
+
+        .paramTable tr td {
+            border: 2px solid #CCC;
+            padding: 4px;
+            color: #000;
+            line-height: 21px;
+            vertical-align: middle;
+            background: WhiteSmoke;
+        }
+
+        .editBox {
+            height: 23px;
+        }
+    </style>
+</head>
+<body>
+<div style="margin: 10px;">
+    <div class="loading_cover" id="loadingDataDiv" style="display: none">
+        <div class="cover"></div>
+        <h4 class="loading">
+            <em class="loading_fb" id="loadContentId"></em>,请稍侯...
+        </h4>
+    </div>
+    <span style="font-weight: bold;">当前位置： PCI优化 &gt;区域PCI翻频方案(新算法) &gt;新建任务</span>
+    <br/>
+    <div style="text-align: center;">
+        <form id="returnTaskListForm" th:action="@{/pciAfp}" method="post" style="display:none" title="跳转">
+            <input id="hiddenCityId" type="hidden" name="cityId"/>
+        </form>
+        <a href="javascript:returnTaskList()" style="text-decoration: underline; font-weight: bold;">&lt;&lt;返回任务列表</a>
+        <br/>
+        <br/>
+        <span style="font-weight: bold;">任务信息>><span style="color: #31FF81;">参数配置</span>>>提交任务</span>
+        <br/>
+    </div>
+
+    <div style="text-align:center">
+        <div style="width: 700px;margin: 20px auto;">
+            <table style="width:500px;margin: 5px auto;">
+                <tr>
+                    <td style="text-align:center">
+                        <input type="button" value="&lt;上一步 " onclick="storageParam('back')"/>
+                    </td>
+                    <td style="text-align:center">
+                        <input type="button" value="下一步&gt;" onclick="storageParam('forward')"/>
+                    </td>
+                </tr>
+            </table>
+
+            <form id="paramForm" th:action="@{/pciAfp/paramPageJump}" method="post" style="display: none">
+                <input type="hidden" name="direction" value="forward"/>
+            </form>
+            <table class="paramTable">
+                <thead>
+                <tr>
+                    <th style="width: 30%">参数名</th>
+                    <th style="width: 30%">默认值（点击修改）</th>
+                    <th style="width: 40%">含义</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!--/*@thymesVar id="thresholds" type="java.util.List<com.hgicreate.rno.lte.web.model.pciafp.Threshold>"*/-->
+                <!--/*@thymesVar id="threshold" type="com.hgicreate.rno.lte.web.model.pciafp.Threshold"*/-->
+                <tr th:each="threshold:${session.taskObj.thresholds}"
+                    th:class="${threshold.flag}?showClass:hiddenClass">
+                    <td th:text="${threshold.descInfo}"></td>
+                    <td style="width: 30%">
+                        <div th:id="${threshold.code}" class="editBox" th:name="${threshold.code}"
+                             th:text="${threshold.defaultVal}"></div>
+                        <span th:id="${threshold.code}" class="errorTips"></span>
+                    </td>
+                    <td th:text="${threshold.scopeDesc}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

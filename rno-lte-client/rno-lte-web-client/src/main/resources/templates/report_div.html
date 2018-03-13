@@ -1,0 +1,33 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<!-- 任务报告 -->
+<div id="reportDiv" style="display:none" th:fragment="report_div">
+    <div style="width: 80%;margin-top: 20px; margin-left: 6%;">
+        <form id="viewReportForm">
+            <input type="hidden" name="jobId" id="hiddenJobId" value=""/>
+            <input type="hidden" name="pageSize" value="25"/>
+            <input type="hidden" name="currentPage" value="1"/>
+            <input type="hidden" name="totalPageCnt" value="0"/>
+            <input type="hidden" name="totalCnt" value="0"/>
+        </form>
+        <ul id="icons" class="ui-widget ui-helper-clearfix" style="width:100px;cursor:pointer">
+            <li class="ui-state-default ui-corner-all" title="返回列表" style="width:100px" onclick="returnToTaskList();">
+                &lt;&lt; 返回列表
+            </li>
+        </ul>
+        <table id="reportListTab" class="greystyle-standard" style="width:100%;margin-left:0">
+            <thead>
+            <tr>
+                <th>阶段</th>
+                <th>开始时间</th>
+                <th>结束</th>
+                <th>结果</th>
+                <th>详细信息</th>
+            </tr>
+            </thead>
+        </table>
+        <div th:replace="paging_div :: paging_div('reportListPageBar', 'queryReportData', 'viewReportForm')"></div>
+    </div>
+</div>
+</body>
+</html>

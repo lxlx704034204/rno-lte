@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+    <title>新增干扰矩阵计算任务</title>
+    <!--自定义-->
+    <script src="../static/js/rno_lte_interfer_matrix_add.js" th:src="@{/js/rno_lte_interfer_matrix_add.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        areaObj = /*[[${areaObj}]]*/ null;
+        /*]]>*/
+    </script>
+</head>
+<body>
+<!-- 数据加载遮罩层 -->
+<div th:replace="loading_cover :: loading_cover"></div>
+
+<span style="font-weight: bold;">当前位置： PCI优化 &gt; 干扰矩阵计算 &gt; 新计算</span>
+<br/>
+<div style="width: 80%;margin-top: 5px; margin-left: 6%;">
+    <div style="margin-bottom: 5px;text-align:center">
+        <form id="returnTaskListForm" th:action="@{/interferMatrix}" method="post" style="display:none" title="跳转">
+            <input id="hiddenCityId" type="hidden" name="cityId"/>
+        </form>
+        <a href="javascript:returnTaskList()" style="text-decoration: underline;font-weight: bold;">
+            &lt;&lt;返回任务列表</a><br/>
+    </div>
+    <div style="margin-top: 10px;">
+        <form id="interferMatrixAddMrForm" method="post">
+            <input type="hidden" name="pageSize" value="25"/>
+            <input type="hidden" name="currentPage" value="1"/>
+            <input type="hidden" name="totalPageCnt" value="0"/>
+            <input type="hidden" name="totalCnt" value="0"/>
+            <input type="hidden" id="sfFiles" name="sffiles" value=""/>
+            <input type="hidden" id="sffilecounts" name="sffilecounts" value=""/>
+
+            <table class="main-table1 half-width" style="padding-top: 10px;">
+                <tr>
+                    <td colspan="2" style="text-align: left">
+                        省：<select id="provinceId" name="provinceId" class="required">
+                        <option th:each="province:${provinces}" th:value="${province.id}"
+                                th:text="${province.name}">广东省
+                        </option>
+                    </select>
+                        市：<select id="cityId" name="cityId" class="required">
+                        <option th:each="city:${cities}" th:value="${city.id}" th:text="${city.name}">广州市</option>
+                    </select>
+                        &nbsp;&nbsp;&nbsp;
+                        <span id="isCalculateTip"
+                              style="font:13px/1.5 Tahoma,'Microsoft Yahei','Simsun';color :red"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">
+							<span style="white-space:nowrap;">数据测量时间&nbsp;&nbsp;从
+							<input id="meaBegTime" name="meaBegTime" value="" type="text" style="width: 132px;"/>
+							到 
+							<input id="meaEndTime" name="meaEndTime" value="" type="text" style="width: 132px;"/>
+							&nbsp;&nbsp;任务名
+                            <input id="taskName" name="taskName" maxlength="30" type="text" style="width: 132px;"
+                                   onblur="checkProviderTaskName();"/>
+								&nbsp;&nbsp;<a href="javascript:checkProviderTaskName();">检查唯一性</a>
+								&nbsp;&nbsp;<span id="taskName_error" class="red"></span><span id="taskName_flag"
+                                                                                               style="color:#008000;"></span>
+							</span>
+                        <select id="dataType" name="dataType" hidden="hidden">
+                            <option value='ALL' selected="selected">全部</option>
+                            <option value='MR'>MR</option>
+                            <option value='HO'>HO</option>
+                        </select>
+                    </td>
+                    <td style="text-align: left;white-space:nowrap;">
+                        <!-- <div style="margin: 11px"></div> -->
+                        <input id="showMrData" type="button" name="search"
+                               style="width: 90px;" value="查看MR数据" onclick=""/>
+                        <span id="isDateRightTip"
+                              style="font:13px/1.5 Tahoma,'Microsoft Yahei','Simsun';color :red"></span>
+                        <input id="showHoData" type="button" name="search"
+                               style="width: 90px;" value="查看HO数据" onclick=""/>
+                        <span id="isHoDateRightTip"
+                              style="font:13px/1.5 Tahoma,'Microsoft Yahei','Simsun';color :red"></span>
+                        <input id="isUseSf" class="forcheck" type="checkbox" name="isUseSf"/>使用扫频数据
+                        <span id="sfFileInfo"
+                              style="display:none;font:13px/1.5 Tahoma,'Microsoft Yahei','Simsun';color :blue">
+							 （选完扫频数据后请点击确认）</span>
+                        <input id="sfFileBtn" type='button' style='display:none;' value='确认' onclick='getFileName()'/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style=" text-align: left;">
+						<span style="white-space:nowrap;">同频小区相关系数权值Kss:
+						<input id="SAMEFREQCELLCOEFWEIGHT" name="sameFreqCellCoefWeight" value="0.80" type="text"/>
+						Kss=1-Kho，修改其中一个，另一个自动调整 
+						</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style=" text-align: left;">
+						<span style="white-space:nowrap;">切换比例权值Kho:
+						<input id="SWITCHRATIOWEIGHT" name="switchRatioWeight" value="0.20" type="text"/>
+						Kho=1-Kss，修改其中一个，另一个自动调整 
+						</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style=" text-align: left;">
+                        <input id="calculateInterMatrix" type="button" style="width: 90px;" value="开始计算"/>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+<div style="width: 80%;margin-left: 6%;padding-top: 10px">
+    <table id="mrDataTable" class="greystyle-standard" width="80%"></table>
+    <div th:replace="paging_div :: paging_div('mrDataPageDiv', 'loadData', 'interferMatrixAddMrForm')"></div>
+</div>
+
+<div id="operInfo"
+     style="display:none; top:40px;left:600px;width:400px; height:40px; background-color:#7dff3f; filter:alpha(Opacity=80);-moz-opacity:0.5;opacity: 0.5;z-index:9999;position: fixed;">
+    <table style="text-align:center">
+        <tr>
+            <td><span id="operTip"></span></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

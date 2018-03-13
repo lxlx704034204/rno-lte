@@ -1,0 +1,12 @@
+server.port=9000
+
+spring.datasource.url=jdbc:oracle:thin:@192.168.6.40:1521:testora
+spring.datasource.username=rno_pci_platform
+spring.datasource.password=123456
+
+rno.lte.proxy.url=http://localhost:8083
+
+#logging.level.org.springframework.security=DEBUG
+logging.level.com.hgicreate.rno=DEBUG
+
+rno.lte.page.index=index4g

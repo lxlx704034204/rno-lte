@@ -1,0 +1,210 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+    <title>新建计算任务信息</title>
+    <!--自定义-->
+    <script src="/static/js/rno_lte_pci_afp_task.js" th:src="@{/js/rno_lte_pci_afp_task.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        areaObj = /*[[${areaObj}]]*/ null;
+        /*]]>*/
+    </script>
+</head>
+<body>
+<div style="margin: 10px;">
+    <div class="loading_cover" id="loadingDataDiv" style="display: none">
+        <div class="cover"></div>
+        <h4 class="loading">
+            <em class="loading_fb" id="loadContentId"></em>,请稍侯...
+        </h4>
+    </div>
+
+    <span style="font-weight: bold;">当前位置： PCI优化 &gt;区域PCI翻频方案(新算法) &gt; 新建任务</span> <br/>
+    <div style="text-align: center;">
+        <form id="returnTaskListForm" th:action="@{/pciAfp}" method="post" style="display:none" title="跳转">
+            <input id="hiddenCityId" type="hidden" name="cityId"/>
+        </form>
+        <a href="javascript:returnTaskList()" style="text-decoration: underline; font-weight: bold;">&lt;&lt;返回任务列表</a>
+        <br/>
+        <br/>
+        <span style="color: #31FF81; font-weight: bold;">任务信息</span>
+        <span style="font-weight: bold;">>>参数配置>>提交任务</span>
+        <br/>
+    </div>
+    <div style="width: 100%; margin-top: 20px">
+        <table style="width: 600px; margin: 0 auto;">
+            <tr>
+                <td>
+                    <input type="button" value="下一步 >"
+                           onclick="directionAction('taskForm','forward',storageTaskInfo('forward'))"/>
+                </td>
+            </tr>
+        </table>
+        <form id="taskForm" th:action="@{/pciAfp/taskPageJump}" method="post" style="display: none">
+            <input type="hidden" name="direction" value="forward"/>
+        </form>
+        <form id="storageTaskForm" th:action="@{/pciAfp/storageTask}" method="post">
+            <table class="taskInfoTab" rules="none">
+                <tbody>
+                <tr>
+                    <td align="right" style="width: 150px;">
+                        区域<span style="color: red;">*</span>：<br/>
+                    </td>
+                    <td align="left">
+                        <label for="provinceId">省：</label>
+                        <select id="provinceId" name="provinceId" class="required">
+                            <option th:each="province:${provinces}" th:value="${province.id}"
+                                    th:text="${province.name}">广东省
+                            </option>
+                        </select>
+                        <label for="cityId">市：</label>
+                        <select id="cityId" name="cityId" class="required">
+                            <option th:each="city:${cities}" th:value="${city.id}" th:text="${city.name}">广州市
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">
+                        任务名称<span style="color: red;">*</span>：
+                        <br/>
+                        <span style="color: red; width: 100px; font-family: 华文中宋,serif;" id="nameErrorText"></span>
+                    </td>
+                    <td align="left">
+                        <textarea style="width: 330px; height: 25px;" id="taskName" name="taskName"
+                                  th:text="${session.taskObj.taskInfo.taskName}" title="任务名称"></textarea>
+                        <span style="color: red; width: 100px; font-family: 华文中宋,serif;" id="nameError"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">
+                        任务描述：
+                        <br/>
+                        <span style="color: red; width: 100px; font-family: 华文中宋,serif;" id="descErrorText"></span>
+                    </td>
+                    <td align="left">
+                        <textarea style="width: 330px; height: 184px;" id="taskDescription" name="taskDesc"
+                                  th:text="${session.taskObj.taskInfo.taskName}" title="任务描述"></textarea>
+                        <span style="color: red; width: 100px; font-family: 华文中宋,serif;" id="descError"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">
+                        获取矩阵方式<span style="color: red;">*</span>：
+                    </td>
+                    <td align="left">
+                        <select id="matrixType" name="matrixType" style="width:103px" title="获取矩阵方式">
+                            <option value="0">已有干扰矩阵</option>
+                            <option value="1">重新计算矩阵</option>
+                            <option value="2">导入矩阵文件</option>
+                        </select>
+                        <select id="matrix" name="matrixDataCollectId" style="width:103px" title="干扰矩阵列表">
+                            <option th:each="one:${matrix}" th:value="${one.jobId}" th:text="${one.taskName}"></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr id="meaTime" style="display:none">
+                    <td align="right">
+                        测量时间<span style="color: red;">*</span>：
+                        <br/>
+                        <span style="color: red; width: 100px; font-family: 华文中宋,serif;" id="dateErrorText"></span>
+                    </td>
+                    <td align="left">
+                        <input id="begMeaTime" name="begMeaTime" value="" type="text" style="width: 132px;"
+                               title="开始时间"/>
+                        <span>到 </span>
+                        <input id="endMeaTime" name="endMeaTime" value="" type="text" style="width: 132px;"
+                               title="结束时间"/>
+                        <span style="color: red; width: 100px; font-family: 华文中宋,serif;" id="dateError"></span>
+                    </td>
+                </tr>
+                <tr id="useFlowRow" style="display:none">
+                    <td align="right">启用流量数据：</td>
+                    <td align="left"><input id="useFlow" type="checkbox" name="useFlow" title="启用流量数据"/></td>
+                </tr>
+                <tr id="ksRow" style="display:none">
+                    <td align="right">流量KS修正值：</td>
+                    <td align="left">
+                        <input type="text" name="ks" id="ks" style="width: 50px"
+                               onkeyup="value=value.replace(/[^.\d]/g,'')" value="0.02" title="流量KS修正值"/>
+                        <span id="errorText" style="color: red"></span>
+                    </td>
+                </tr>
+                <tr id="useSfRow" style="display:none">
+                    <td align="right">启用扫频数据：</td>
+                    <td align="left"><input id="useSf" type="checkbox" name="useSf" title="启用扫频数据"/></td>
+                </tr>
+                <tr id="freqAdjust" style="display:none">
+                    <td align="right">运行D1D2频率调整：</td>
+                    <td align="left">
+                        <input id="isFreqAdj" type="checkbox" name="isFreqAdj"/>
+                        <label for="isFreqAdj">频率调整</label>
+                    </td>
+                </tr>
+                <tr id="d1d2plan" style="display:none">
+                    <td align="right">D1D2频率调整方案：</td>
+                    <td align="left">
+                        <label><input type="radio" id="samefreq" name="freqAdjType" class="freqAdjType"
+                                      value="ROAD_SAMEFREQ_NETWORKCONSTRUC" checked="checked"/>道路同频组网</label>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <label><input type="radio" id="interval" name="freqAdjType" class="freqAdjType"
+                                      value="ROAD_INTERVAL_NETWORKCONSTRUC"/>道路插花组网</label>
+                    </td>
+                </tr>
+                <tr id="d1d2range" style="display:none">
+                    <td align="right">D1D2频率范围：</td>
+                    <td align="left">
+                        <label>D1频<input type="text" id="d1Freq" name="d1Freq"/></label>
+                        <br/>
+                        <label>D2频<input type="text" id="d2Freq" name="d2Freq"/></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">评估方案：</td>
+                    <td>
+                        <label>方案评估1(三步法)<input type="radio" name="planType" value="ONE" checked="checked"/></label>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <label>方案评估2(两步法)<input type="radio" name="planType" value="TWO"/></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">收敛方式：</td>
+                    <td>
+                        <label>方案一(根据Top差值比例)<input type="radio" name="convergenceType" value="ONE" checked="checked"/></label>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <label>方案二(根据求方差)<input type="radio" name="convergenceType" value="TWO"/></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">邻区核查：</td>
+                    <td>
+                        <label><input id="checkNCell" type="checkbox" name="checkNCell"
+                                      checked="checked"/>进行邻区核查</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">关联表：</td>
+                    <td>
+                        <label><input type="checkbox" name="isExportAssoTable"/>关联表导出</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">中间方案：</td>
+                    <td>
+                        <label><input type="checkbox" name="isExportMidPlan"/>中间方案导出</label>
+                    </td>
+                </tr>
+                <tr id="ExportNcCheckPlan">
+                    <td align="right">邻区核查方案：</td>
+                    <td>
+                        <label><input type="checkbox" name="isExportNcCheckPlan"/>邻区核查方案导出</label>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+        <div style="margin: 27px"></div>
+    </div>
+</div>
+</body>
+</html>

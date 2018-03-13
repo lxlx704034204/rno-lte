@@ -1,0 +1,42 @@
+package com.hgicreate.rno.mapper;
+
+import com.hgicreate.rno.model.Area;
+import com.hgicreate.rno.model.Cell;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+
+@Mapper
+public interface LteGisMapper {
+
+	/*          动态覆盖             */
+
+	/**
+	 *查询MR in 干扰数据
+	 */
+	public List<Map<String,Object>> queryDynaCoverDataFromSparkMrTableInData(@Param("cityId") long cityId,@Param("lteCellId") String lteCellId,@Param("dates") String dates);
+	/**
+	 *查询MR OUT 干扰数据
+	 */
+	public List<Map<String,Object>> queryDynaCoverDataFromSparkMrTableOutData(@Param("cityId") long cityId,@Param("lteCellId") String lteCellId,@Param("dates") String dates);
+
+	/*          PCI 评估             */
+
+	/**
+	 * 获取IN干扰小区信息
+	 */
+	public List<Map<String, Object>> getInCellInfo(Map<String, Object> map);
+
+	/**
+	 * 获取OUT干扰小区信息
+	 */
+	public List<Map<String, Object>> getOutCellInfo(Map<String, Object> map);
+
+	/**
+	 * 获取PCI智能优化小区信息
+	 */
+	public List<Map<String, Object>> getPciCellInfo(Map<String, Object> map);
+}

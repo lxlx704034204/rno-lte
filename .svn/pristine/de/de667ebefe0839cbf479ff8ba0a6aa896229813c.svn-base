@@ -1,0 +1,46 @@
+# tomcat server config
+server.port=8081
+server.context-path=/${spring.application.name}
+# logback
+logging.level.root=info
+logging.level.com.hgicreate.rno.lte=debug
+logging.level.com.hgicreate.rno.lte.mapper=debug
+# eureka config
+eureka.instance.prefer-ip-address=true
+eureka.instance.lease-renewal-interval-in-seconds=5
+eureka.instance.lease-expiration-duration-in-seconds=15
+eureka.client.registryFetchIntervalSeconds=5
+eureka.client.initial-instance-info-replication-interval-seconds=5
+eureka.client.instance-info-replication-interval-seconds=5
+eureka.client.eureka-service-url-poll-interval-seconds=30
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+# endpoints config
+endpoints.restart.enabled=true
+endpoints.health.sensitive=false
+endpoints.shutdown.enabled=true
+# security
+management.security.enabled=false
+#断路器超时，需与负载均衡超时配合使用，否则将出现多次重复动作
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=40000
+#负载均衡读取超时，应不小于断路器超时
+ribbon.ReadTimeout=60000
+#负载均衡连接超时，一般与读取超时相等
+ribbon.ConnectTimeout=60000
+#拉取服务列表时间
+ribbon.serverListRefreshInterval=5000
+# service config
+rno.lte.service.common=rno-lte-common-service
+rno.lte.service.azimuth-evaluation=rno-lte-azimuth-evaluation-service
+rno.lte.service.interference-matrix=rno-lte-interference-matrix-service
+rno.lte.service.pci-afp=rno-lte-pci-afp-service
+rno.lte.service.structure-analysis=rno-lte-structure-analysis-service
+# job
+rno.job-type-code.azimuth-eval=RNO_LTE_AZIMUTH_EVALUATION
+# hdfs path
+rno.hdfs-file-path=op/rno/upload
+# hdfs config
+spring.hadoop.fs-uri=hdfs://rnodev-master.iscreate.com:8020
+spring.hadoop.config.hadoop.user.name=dev
+# file upload config
+spring.http.multipart.max-file-size=1024MB
+spring.http.multipart.max-request-size=1024MB

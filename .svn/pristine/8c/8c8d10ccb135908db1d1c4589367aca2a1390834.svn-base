@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+<title>LTE小区信息查询</title>
+	<!--自定义-->
+	<script src="/static/js/rno_lte_cell_query.js" th:src="@{/js/rno_lte_cell_query.js}"></script>
+	<script src="/static/js/common.js" th:src="@{/js/common.js}"></script>
+	<!--link为通用方法识别标志-->
+	<link>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		areaObj = /*[[${areaObj}]]*/ null;
+		/*]]>*/
+	</script>
+</head>
+<body>
+	<input id="contextPath" type="hidden" th:value="${#request.contextPath}">
+    <div id="loading" class="loading" style="display:none">加载中...</div>  
+    <div id="info" class="info-style" style="display:none"></div>  
+	<div class="bs-callout bs-callout-danger" id="callout-tables-striped-ie8">
+		<form id="cellsForm" th:action="${#request.contextPath}+'/lteCellQueryPage/exportCells'"  method="post">
+			<input type="hidden" id="hiddenPageSize" name="hiddenPageSize" value="25" /> <input type="hidden"
+				id="hiddenCurrentPage" name="hiddenCurrentPage" value="0" /> <input type="hidden" id="hiddenTotalPageCnt"
+				name="hiddenTotalPageCnt" /> <input type="hidden" id="hiddenTotalCnt" name="hiddenTotalCnt" />
+			<table class="table-tr">
+				<tr>
+					<td class="td-style td-space"><label class="label-style" for="provinceSelect">省：</label> <select class="form-control"
+						style="width: 150px; display: inline-block" id="provinceSelect" name="provinceSelect">
+						<option th:each="province:${provinces}" th:value="${province.areaId}"
+								th:text="${province.name}">广东省
+						</option>
+					</select>
+					</td>
+					<td class="td-style td-space"><div class="form-inline"><label class="label-style" for="enodebId">eNodeB：</label><input class="form-control" id="enodebId" name="enodebId" type="text" value="" style="width: 150px;"  /></div>
+					</td>
+					<td class="td-style td-space"><div class="form-inline"><label class="label-style" for="cellId">Cell ID：</label><input class="form-control" id="cellId" name="cellId" type="text" value="" style="width: 150px;"  /></div>
+					</td>
+					<td class="td-style"><label class="label-style" for="fieldSelect">查询字段：</label> <select class="form-control"
+																										style="width: 150px; display: inline-block" id="fieldSelect" name="fieldSelect">
+						<option value="-1"></option>
+					</select>
+					</td>
+					<td class="td-style">
+						<button type="button" id="fieldBtn" class="btn btn-default" data-toggle="modal" data-target="#myModal">
+							<i class="glyphicon glyphicon-forward"></i>
+						</button>
+					</td>
+				</tr>
+				<tr>
+					<td class="td-style"><label class="label-style" for="citySelect">市：</label> <select class="form-control"
+																																		   style="width: 150px; display: inline-block" id="citySelect" name="citySelect">
+						<option value="-1"></option>
+						<option th:each="city:${cities}" th:value="${city.areaId}" th:text="${city.name}">广州市
+						</option>
+					</select><button type="button" id="cityBtn" class="btn btn-default" data-toggle="modal" data-target="#myModal">
+						<i class="glyphicon glyphicon-forward"></i>
+					</button>
+					</td>
+					<td class="td-style" width="27px">
+						&nbsp;&nbsp;&nbsp;&nbsp;
+					</td>
+					<td class="td-style" style="padding-right:52px"><div class="form-inline"><label class="label-style" for="cellName">小区名：</label><input class="form-control" id="cellName" name="cellName" type="text" value="" style="width: 150px;"  /></div>
+					</td>
+					<td class="td-style td-space"><div class="form-inline"><label class="label-style" for="pci">小区PCI：</label><input class="form-control" id="pci" name="pci" type="text" value="" style="width: 150px;"  /></div>
+					</td>
+					<td class="td-style">
+						<button type="button" id="searchBtn" class="btn-width btn btn-default" style="margin-right:60px;width:100px;">查询</button>
+						<button type="button" id="exportBtn" class="btn-width btn btn-default" style="width:100px;">导出</button>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+	<div class="row style-select modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel"></h4>
+				</div>
+				<div class="modal-body" style="margin-top: 1px">
+					<div class="row">
+						<div class="col-xs-5">
+							<h5 class="modal-title" id="myModalLabel1"></h5>
+						</div>
+						<div class="col-xs-2"></div>
+						<div class="col-xs-5">
+							<h5 class="modal-title" id="myModalLabel2"></h5>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-5">
+							<select name="from[]" id="search" class="form-control" size="16" multiple="multiple"
+								style="height: 280px; width: 220px; overflow: auto;"></select>
+						</div>
+
+						<div class="col-xs-2">
+							<br>
+							<button type="button" id="search_rightSelected" class="btn btn-block">
+								<i class="glyphicon glyphicon-chevron-right"></i>
+							</button>
+							<br>
+							<button type="button" id="search_rightAll" class="btn btn-block">
+								<i class="glyphicon glyphicon-forward"></i>
+							</button>
+							<br> <br> <br>
+							<button type="button" id="search_leftAll" class="btn btn-block">
+								<i class="glyphicon glyphicon-backward"></i>
+							</button>
+							<br>
+							<button type="button" id="search_leftSelected" class="btn btn-block">
+								<i class="glyphicon glyphicon-chevron-left"></i>
+							</button>
+						</div>
+
+						<div class="col-xs-5">
+							<select name="to[]" id="search_to" class="form-control" size="16" multiple="multiple"
+								style="height: 280px; width: 220px; overflow: auto;"></select>
+						</div>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<div style="float: left; margin-top: -10px; margin-bottom: -20px">
+						<p id="searching"></p>
+					</div>
+					<div style="float: right; margin-top: -10px; margin-bottom: -20px">
+						<div class="form-group form-inline">
+							<input type="button" id=ensure class="form-control  btn btn-success" value="确定" />
+							<input type="button" id=cancle class="form-control  btn btn-info" data-dismiss="modal" value="取消" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="bs-example form-bottom-style" data-example-id="striped-table">
+		<table id="cellsTable" class="table table-hover"></table>
+	</div>
+
+    <div id="cellsDiv">
+		<nav aria-label="...">
+			<ul class="pagination page-style" style="margin-top: 0px;margin-bottom: 20px">
+				<li><div class="span-style">记录数：<span id="emTotalCnt">0</span> 条</div></li>
+				<li><div class="span-style">共 <span id="emTotalPageCnt">0</span> 页</div></li>
+				<li><a ondragstart="return false" href="javascript:void(0);" onclick="showListViewByPage('first',sumbitCondition,'cellsForm','cellsDiv')">首页</a></li>
+				<li><a ondragstart="return false" href="javascript:void(0);" onclick="showListViewByPage('back',sumbitCondition,'cellsForm','cellsDiv')" aria-label="Previous"><span
+						aria-hidden="true">上一页</span></a></li>
+				<li><a>第 <input type="text" id="showCurrentPage" class="paging_input_text form-control" value="0" />
+						页
+				</a></li>
+				<li><a ondragstart="return false" href="javascript:void(0);" onclick="showListViewByPage('num',sumbitCondition,'cellsForm','cellsDiv')">GO</a></li>
+				<li><a ondragstart="return false" href="javascript:void(0);" onclick="showListViewByPage('next',sumbitCondition,'cellsForm','cellsDiv')" aria-label="Next"><span
+						aria-hidden="true">下一页</span></a></li>
+				<li><a ondragstart="return false" href="javascript:void(0);" onclick="showListViewByPage('last',sumbitCondition,'cellsForm','cellsDiv')">末页</a></li>
+			</ul>
+		</nav>
+	</div>
+</body>
+</html>

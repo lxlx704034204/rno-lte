@@ -1,0 +1,46 @@
+server:
+  port: 8081
+  context-path: /${spring.application.name}
+spring:
+  hadoop:
+    fs-uri: hdfs://rnodev-master.iscreate.com:8020
+    config.hadoop.user.name: dev
+  http:
+    multipart.max-file-size: 1024MB
+    multipart.max-request-size: 1024MB
+eureka.client.serviceUrl.defaultZone: http://localhost:8761/eureka/
+endpoints:
+  restart.enabled: true
+  health.sensitive: false
+  shutdown.enabled: true
+management.security.enabled: false
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 40000
+ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+rno:
+  lte.service:
+    common: rno-lte-common-service
+    azimuth-evaluation: rno-lte-azimuth-evaluation-service
+    interference-matrix: rno-lte-interference-matrix-service
+    pci-afp: rno-lte-pci-afp-service
+    structure-analysis: rno-lte-structure-analysis-service
+  hdfs-file-path: op/rno/upload
+
+---
+
+spring:
+  profiles: uat
+  hadoop:
+    fs-uri: hdfs://rnodev-master.iscreate.com:8020
+    config.hadoop.user.name: dev
+eureka.client.serviceUrl.defaultZone: http://192.168.6.41:8761/eureka/
+
+---
+
+spring:
+  profiles: prod
+  hadoop:
+    fs-uri: hdfs://rnodev-master.iscreate.com:8020
+    config.hadoop.user.name: dev
+eureka.client.serviceUrl.defaultZone: http://192.168.50.20:8761/eureka/

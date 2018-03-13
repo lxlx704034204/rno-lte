@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- webjars -->
+    <link rel="stylesheet"
+          href="/webjars/bootstrap/3.3.7/css/bootstrap.css"
+          th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+
+    <link rel="stylesheet"
+          href="/webjars/font-awesome/4.7.0/css/font-awesome.css"
+          th:href="@{/webjars/font-awesome/css/font-awesome.min.css}">
+
+    <script src="/webjars/jquery/3.1.1/jquery.js"
+            th:src="@{/webjars/jquery/jquery.min.js}"></script>
+
+    <script src="/webjars/bootstrap/3.3.7/js/bootstrap.js"
+            th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+    <!-- lib -->
+    <script src="/static/lib/md5/md5.min.js" th:src="@{/lib/md5/md5.min.js}"></script>
+
+    <!-- custom -->
+    <script src="/static/js/user-manager.js" th:src="@{/js/user-manager.js}"></script>
+
+</head>
+<body>
+<div>
+    <button class="btn btn-success" style="margin: 10px 0" data-toggle="modal" data-target="#newUserModal">
+        <i class="fa fa-user-plus" aria-hidden="true"></i> 新增用户
+    </button>
+    <table class="table table-hover">
+        <tr>
+            <th>用户名</th>
+            <th>用户全称</th>
+            <th>邮件地址</th>
+            <th>是否激活</th>
+            <th>默认城市</th>
+            <th>权限角色</th>
+            <th>创建时间</th>
+            <th>更新时间</th>
+            <th>操作</th>
+        </tr>
+        <tr th:each="user:${users}">
+            <td><span th:text="${user.username}">rnodev</span></td>
+            <td><span th:text="${user.fullName}">网优开发</span></td>
+            <td><span th:text="${user.email}">rnodev@hgicreate.com</span></td>
+            <td><span th:text="*{user.enabled == 1}?'是':'否'">是</span></td>
+            <td><span th:text="${user.area.name}">广州市</span></td>
+            <td><span th:text="*{user.auth.authority=='ROLE_ADMIN'}?'管理员':'普通用户'">普通用户</span></td>
+            <td><span th:text="${#dates.format(user.createTime, 'yyyy-MM-dd HH:mm')}"></span></td>
+            <td><span th:text="${#dates.format(user.updateTime, 'yyyy-MM-dd HH:mm')}"></span></td>
+            <td>
+                <button class="btn btn-info" data-toggle="modal" data-target="#updateUserModal" th:value="${user.id}">修改</button>
+                &nbsp;&nbsp;
+                <button class="btn btn-danger" th:value="'{id:' + ${user.id} + ',name:\'' + ${user.username} + '\'}'">删除</button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- 新增用户 Modal -->
+<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">新用户</h4>
+            </div>
+            <form role="form" id="newUserForm">
+                <div class="modal-body">
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">用户：</span>
+                        <input type="text" class="form-control" placeholder="用户名（必填项）" name="username">
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">密码：</span>
+                        <input type="text" class="form-control" placeholder="密码（必填项）" name="password">
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">全称：</span>
+                        <input type="text" class="form-control" placeholder="用户全称（可选项）" name="fullName">
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">邮箱：</span>
+                        <input type="text" class="form-control" placeholder="邮件地址（可选项）" name="email">
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">是否激活：</span>
+                        <select class="form-control" name="enabled">
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">默认城市：</span>
+                        <select class="form-control" name="defaultCity">
+                            <option th:each="city:${cities}" th:value="${city.id}" th:text="${city.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">权限角色：</span>
+                        <select class="form-control" name="authority">
+                            <option value="ROLE_USER">普通用户</option>
+                            <option value="ROLE_ADMIN">管理员</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">&nbsp;取消&nbsp;</button>
+                    <button type="button" class="btn btn-primary" id="newUserBtn">&nbsp;保存&nbsp; </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- 修改用户 Modal -->
+<div class="modal fade" id="updateUserModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">修改用户</h4>
+            </div>
+            <form role="form" id="updateForm">
+                <div class="modal-body">
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">用户：</span>
+                        <input type="text" class="form-control" id="updateUsername" disabled>
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">密码：</span>
+                        <input type="text" class="form-control" id="updatePassword" placeholder="留空表示不修改原密码。">
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">全称：</span>
+                        <input type="text" class="form-control" id="updateFullName" placeholder="用户全称（可选项）">
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">邮箱：</span>
+                        <input type="text" class="form-control" placeholder="邮件地址（可选项）" id="updateEmail">
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">是否激活：</span>
+                        <select class="form-control" id="updateEnabled">
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">默认城市：</span>
+                        <select class="form-control" id="updateCity">
+                            <option th:each="city:${cities}" th:value="${city.id}" th:text="${city.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon">权限角色：</span>
+                        <select class="form-control" id="updateRole">
+                            <option value="ROLE_USER">普通用户</option>
+                            <option value="ROLE_ADMIN">管理员</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">&nbsp;取消&nbsp;</button>
+                    <button type="button" class="btn btn-primary" id="updateBtn">&nbsp;更新&nbsp; </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<input type="hidden" id="newUserId">
+<input type="hidden" id="updateUserId">
+</body>
+</html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hgicreate.rno.lte.shape.mapper.oracle.OracleMapper">
+    <sql id="gisTableCols">
+        insert into RNO_LTE_CELL_GEOM (cell_Id,area_id,geom)
+        values
+    </sql>
+
+    <insert id="batchInsertOutdoorGisCell" parameterType="com.hgicreate.rno.lte.shape.model.GisCell">
+        <include refid="gisTableCols"/>
+        (#{cellId},#{areaId},
+          SDO_GEOM.SDO_INTERSECTION(
+            SDO_CS.TRANSFORM(SDO_UTIL.CIRCLE_POLYGON(#{lon},#{lat},#{radius},0.2),4326),
+            sdo_geometry(2003,4326,null,sdo_elem_info_array(1, 1003, 1),
+              sdo_ordinate_array(#{lon},#{lat},#{sx},#{sy},#{ex},#{ey},#{lon},#{lat})
+            ),
+          1)
+        )
+    </insert>
+
+    <insert id="batchInsertIndoorGisCell" parameterType="com.hgicreate.rno.lte.shape.model.GisCell">
+        <include refid="gisTableCols"/>
+        (#{cellId},#{areaId},SDO_CS.TRANSFORM(SDO_UTIL.CIRCLE_POLYGON(#{lon},#{lat},#{radius},0.1),4326))
+    </insert>
+
+    <delete id="deleteGisCellByCityId">
+        DELETE from RNO_LTE_CELL_GEOM where area_id=#{cityId}
+    </delete>
+</mapper>

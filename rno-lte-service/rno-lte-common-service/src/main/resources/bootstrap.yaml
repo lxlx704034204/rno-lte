@@ -1,0 +1,32 @@
+# SERVICE VERSION
+info:
+    version: @project.version@
+
+# PROFILES
+spring:
+    application.name: rno-lte-common-service
+    profiles.active: @default.spring.profiles@
+
+---
+
+spring:
+    profiles: dev
+    cloud.config.enabled: false
+
+---
+
+spring:
+    profiles: uat
+    cloud:
+        config:
+            enabled: true
+            uri: http://@rno-uat-registry-host@/config
+
+---
+
+spring:
+    profiles: prod
+    cloud:
+        config:
+            enabled: true
+            uri: http://@rno-prod-registry-host@/config

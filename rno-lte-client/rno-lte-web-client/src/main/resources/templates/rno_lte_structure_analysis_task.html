@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+    <title>LTE结构分析任务信息</title>
+    <!--自定义-->
+    <script src="/static/js/rno_lte_structure_analysis_task.js"
+            th:src="@{/js/rno_lte_structure_analysis_task.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        areaObj = /*[[${areaObj}]]*/ null;
+        /*]]>*/
+    </script>
+</head>
+<body>
+<!-- 数据加载遮罩层 -->
+<div th:replace="loading_cover :: loading_cover"></div>
+
+<span style="font-weight: bold;">当前位置： 专项优化 &gt; LTE结构分析 &gt; 新建LTE结构分析任务</span>
+<br/>
+<div style="text-align: center">
+    <form id="returnTaskListForm" th:action="@{/structureAnalysis}" method="post" style="display:none" title="跳转">
+        <input id="hiddenCityId" type="hidden" name="cityId"/>
+    </form>
+    <a href="javascript:returnTaskList()" style="text-decoration: underline;font-weight: bold;">
+        &lt;&lt;返回任务列表</a><br/><br/>
+    <span style="color: #31FF81;font-weight: bold;">任务信息</span>
+    <br/>
+</div>
+<div style="width: 100%;margin-top: 20px">
+    <form id="submitTaskForm" method="post">
+        <table class="taskInfoTab" rules="none">
+            <tbody>
+            <tr>
+                <td align="right">
+                    区域<span style="color: red;">*</span>：<br/>
+                </td>
+                <td align="left">
+                    <label>省：
+                        <select id="provinceId" name="provinceId" class="required" title="省名">
+                            <!--/*@thymesVar id="provinces" type="java.util.List<com.hgicreate.rno.lte.web.model.Area>"*/-->
+                            <option th:each="province:${provinces}" th:value="${province.id}"
+                                    th:text="${province.name}">广东省
+                            </option>
+                        </select>
+                    </label>
+                    <label>市：
+                        <select id="cityId" name="cityId" class="required" title="城市名">
+                            <!--/*@thymesVar id="cities" type="java.util.List<com.hgicreate.rno.lte.web.model.Area>"*/-->
+                            <option th:each="city:${cities}" th:value="${city.id}" th:text="${city.name}">广州市
+                            </option>
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    任务名称<span style="color: red;">*</span>：<br/>
+                    <span id="nameErrorText" class="errorTips"></span>
+                </td>
+                <td align="left">
+                    <textarea id="taskName" name="taskName" style="width: 330px; height: 25px; "
+                              title="任务名称"></textarea>
+                    <span id="nameError" class="errorTips"></span>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    任务描述：<br/>
+                    <span id="descErrorText" class="errorTips"></span>
+                </td>
+                <td align="left"><br/>
+                    <textarea id="taskDescription" name="taskDescription" style="width: 330px; height: 184px; "
+                              title="任务描述"></textarea>
+                    <span id="descError" class="errorTips"></span>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    测试时间<span style="color: red;">*</span>：<br/>
+                    <span id="dateErrorText" class="errorTips"></span>
+                </td>
+                <td align="left">
+                    <label><input id="begMeaTime" name="begMeaTime" type="text" style="width: 80px;" readonly="readonly"
+                                  title="开始时间"/></label>
+                    <label>到<input id="endMeaTime" name="endMeaTime" type="text" style="width: 80px;"
+                                   readonly="readonly" title="结束时间"/></label>
+                    <span id="dateError" class="errorTips"></span>
+                </td>
+            </tr>
+            <tr>
+                <td align="right"></td>
+                <td><input type="button" id="submitTask" value="提交任务"/>
+                    <input type="button" onclick="returnTaskList()" value="取消任务"/></td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+</body>
+</html>

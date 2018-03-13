@@ -1,0 +1,12 @@
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--获取map properties配置属性-->
+<div th:fragment="map_config">
+    <input id="cellLayers" type="hidden" th:value="${@environment.getProperty('rno.lte.map.cell.layers')}">
+    <input id="baseLayersUrl" type="hidden" th:value="${@environment.getProperty('rno.lte.base.map.layer.url')}">
+    <input id="cellLayersUrl" type="hidden" th:value="${@environment.getProperty('rno.lte.cell.map.layer.url')}">
+    <input id="wfsUrl" type="hidden" th:value="${@environment.getProperty('rno.lte.cell.wfs.url')}">
+    <input id="contextPath" type="hidden" th:value="${#request.contextPath}">
+</div>
+</body>
+</html>

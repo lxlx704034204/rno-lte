@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ 
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hgicreate.rno.mapper.LteGisMapper">
+	<!--                     动态覆盖                           -->
+	<select id="queryDynaCoverDataFromSparkMrTableInData" resultType="map">
+		<![CDATA[
+		select	DISTINCT t.record_date,
+		t.cell_Id CELL_ID,
+		c.longitude CELL_LNG,
+		c.latitude CELL_LAT,
+		t.ncell_id NCELL_ID,
+		d.longitude as LNG,
+		d.latitude as LAT,
+		t.rsrptimes0 RSRPTIMES0,
+		t.rsrptimes2 RSRPTIMES2,
+		t.mixingsum,
+		t.rsrptimes0 / t.mixingsum as VAL1,
+		t.rsrptimes2 / t.mixingsum as VAL2,
+		t.distance_km*1000 DISTANCE
+	  from
+		lte_mr_data t,
+		lte_cell_param c,
+		lte_cell_param d
+	  where
+		t.cell_Id = c.cell_Id
+		and t.ncell_id = d.cell_Id
+		and d.cover_type = '室外'
+		and t.mixingsum >= 50
+		and t.distance_km >= 0.1
+		and t.distance_km <= 5
+		and t.rsrptimes0 > 0
+		and t.cell_Id = #{lteCellId}
+		and t.area_id = #{cityId}
+		and t.record_date in ${dates}
+		]]>
+	</select>
+	<select id="queryDynaCoverDataFromSparkMrTableOutData" resultType="map">
+		<![CDATA[
+		select	DISTINCT t.record_date,
+		t.cell_Id NCELL_ID,
+		c.longitude LNG,
+		c.latitude LAT,
+		t.ncell_id CELL_ID,
+		d.longitude as CELL_LNG,
+		d.latitude as CELL_LAT,
+		t.rsrptimes0 RSRPTIMES0,
+		t.rsrptimes2 RSRPTIMES2,
+		t.mixingsum,
+		t.rsrptimes0 / t.mixingsum as VAL1,
+		t.rsrptimes2 / t.mixingsum as VAL2,
+		t.distance_km*1000 DISTANCE
+	from
+		lte_mr_data t,
+		lte_cell_param c,
+		lte_cell_param d
+	where
+		t.cell_Id = c.cell_Id
+		and t.ncell_id = d.cell_Id
+		and d.cover_type = '室外'
+		and t.mixingsum >= 50
+		and t.distance_km >= 0.1
+		and t.distance_km <= 5
+		and t.rsrptimes0 > 0
+		and t.ncell_id = #{lteCellId}
+		and t.area_id = #{cityId}
+		and t.record_date in ${dates}
+		]]>
+	</select>
+	<!--                 PCI评估             -->
+	<select id="getInCellInfo" parameterType="map" resultType="map">
+		select cell_id as cell, ncell_id as ncell, rela_val from lte_inter_matrix where job_id=#{jobId} and cell_id=#{cellId}
+	</select>
+	<select id="getOutCellInfo" parameterType="map" resultType="map">
+		select cell_id as cell, ncell_id as ncell, rela_val from lte_inter_matrix where job_id=#{jobId} and ncell_id=#{ncellId}
+	</select>
+	<select id="getPciCellInfo" parameterType="map" resultType="map">
+		select cell_id as cell, ncell_id as ncell, rela_val, cell_pci, ncell_pci from lte_inter_matrix where job_id=#{jobId} and cell_id=#{cellId} or ncell_id=#{cellId}
+	</select>
+</mapper>

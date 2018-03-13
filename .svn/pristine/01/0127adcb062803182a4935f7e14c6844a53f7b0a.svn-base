@@ -1,0 +1,62 @@
+package com.hgicreate.rno.service;
+
+import com.hgicreate.rno.model.Area;
+import com.hgicreate.rno.model.Cell;
+import com.hgicreate.rno.model.CellMgrCond;
+import com.hgicreate.rno.model.InterMatrixTask;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.data.domain.Page;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
+@FeignClient(name = "${rno.lte.service.common:rno-lte-common-service}", fallback = CommonRestClientFallback.class)
+public interface CommonRestClient {
+    /**
+     * 验证用户身份
+     */
+    @RequestMapping(value = "/verifyUserIdentity", method = GET)
+    Boolean verifyUserIdentity(@RequestParam("account") String account);
+
+    /**
+     * 根据用户名和指定城市ID获取允许访问的区域
+     */
+    @RequestMapping(value = "/getAreaByAccount", method = GET)
+    List<Area> getAreaByAccount(@RequestParam("account") String account, @RequestParam("cityId") long cityId);
+
+    /**
+     * 根据父区域ID，获取指定类型的子区域列表
+     */
+    @RequestMapping(value = "/getSubAreaByParent", method = GET)
+    List<Area> getSubAreaByParent(@RequestParam("account") String account, @RequestParam("parentAreaId") long parentAreaId, @RequestParam("subAreaLevel") String subAreaLevel);
+
+    @PostMapping("/cellMgr/findByPage")
+    public PagedResources<Cell> findByPage(@RequestBody CellMgrCond cond);
+
+    @PostMapping("/cellMgr/findAll")
+    public List<Cell> findAll(@RequestBody CellMgrCond cond);
+
+    /**
+     * 获取最近十次lte干扰矩阵信息
+     */
+    @GetMapping("/interMatrix/getLatelyLteMatrix/{cityId}")
+    public List<InterMatrixTask> getLatelyLteMatrixByCityId(@PathVariable("cityId") long cityId);
+
+    /**
+     * 查询指定城市前5条数据记录
+     */
+    @GetMapping(value = "/dataMgt/findByAreaIdAndDataType")
+    public List<Date> findByAreaIdAndDataType(@RequestParam("areaId")long areaId,@RequestParam("dataType") String dataType);
+
+    /**
+     * 获取同站小区
+     */
+    @PostMapping("/cellMgr/getSameStationCellsByCellId")
+    public List<Cell> getSameStationCellsByCellId(@RequestParam("cellId") String cellId);
+
+}

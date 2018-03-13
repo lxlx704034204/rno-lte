@@ -1,0 +1,20 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<!-- 分页栏 -->
+<div class="paging_div" th:id="${id}" th:fragment="paging_div(id, action, paging_form)">
+    <span class="mr10">共 <em id="emTotalCnt" class="blue">0</em> 条记录 </span>
+    <a class="paging_link page-first" title="首页"
+       th:onclick="'showListViewByPage(\'first\','+${action}+',\''+${paging_form}+'\',\''+${id}+'\')'"></a>
+    <a class="paging_link page-prev" title="上一页"
+       th:onclick="'showListViewByPage(\'back\','+${action}+',\''+${paging_form}+'\',\''+${id}+'\')'"></a>
+    <label> 第 <input type="text" id="showCurrentPage" class="paging_input_text" value="0"/> 页/ <em
+            id="emTotalPageCnt">0</em> 页 </label>
+    <a class="paging_link page-go" title="GO"
+       th:onclick="'showListViewByPage(\'num\','+${action}+',\''+${paging_form}+'\',\''+${id}+'\')'">GO</a>
+    <a class="paging_link page-next" title="下一页"
+       th:onclick="'showListViewByPage(\'next\','+${action}+',\''+${paging_form}+'\',\''+${id}+'\')'"></a>
+    <a class="paging_link page-last" title="末页"
+       th:onclick="'showListViewByPage(\'last\','+${action}+',\''+${paging_form}+'\',\''+${id}+'\')'"></a>
+</div>
+</body>
+</html>

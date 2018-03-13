@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="rno-lte-azimuth-evaluation-service" />
+        <module name="rno-lte-cell-gis-tool" />
+        <module name="rno-lte-common-service" />
+        <module name="rno-lte-gis-client" />
+        <module name="rno-lte-gis-service" />
+        <module name="rno-lte-interference-matrix-service" />
+        <module name="rno-lte-mr-parse-tool" />
+        <module name="rno-lte-pci-afp-service" />
+        <module name="rno-lte-structure-analysis-service" />
+        <module name="rno-lte-web-client" />
+        <module name="rno-pci-platform" />
+        <module name="rno-registry" />
+        <module name="rno-zuul-proxy" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="rno-lte" target="1.8" />
+      <module name="rno-lte-azimuth-evaluation-service" target="1.8" />
+      <module name="rno-lte-cell-gis-tool" target="1.8" />
+      <module name="rno-lte-client" target="1.8" />
+      <module name="rno-lte-common-service" target="1.8" />
+      <module name="rno-lte-gis-client" target="1.8" />
+      <module name="rno-lte-gis-service" target="1.8" />
+      <module name="rno-lte-interference-matrix-service" target="1.8" />
+      <module name="rno-lte-mr-parse-tool" target="1.8" />
+      <module name="rno-lte-pci-afp-service" target="1.8" />
+      <module name="rno-lte-service" target="1.8" />
+      <module name="rno-lte-structure-analysis-service" target="1.8" />
+      <module name="rno-lte-tool" target="1.8" />
+      <module name="rno-lte-web-client" target="1.8" />
+      <module name="rno-pci-platform" target="1.8" />
+      <module name="rno-registry" target="1.8" />
+      <module name="rno-zuul-proxy" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

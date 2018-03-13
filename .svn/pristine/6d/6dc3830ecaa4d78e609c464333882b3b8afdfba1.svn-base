@@ -1,0 +1,148 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common_head :: common_head(~{::title},~{::meta},~{::link},~{::script},~{::style})">
+    <title>新计算总览信息</title>
+    <!--自定义-->
+    <script src="/static/js/rno_lte_pci_afp_overview.js" th:src="@{/js/rno_lte_pci_afp_overview.js}"></script>
+
+    <style type="text/css">
+        .detailTable {
+            border-collapse: separate;
+            border-spacing: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="loading_cover" id="loadingDataDiv" style="display: none">
+    <div class="cover"></div>
+    <h4 class="loading">
+        <em class="loading_fb" id="loadContentId"></em>,请稍侯...
+    </h4>
+</div>
+
+<span style="font-weight: bold;">当前位置： PCI优化 &gt;区域PCI翻频方案(新算法) &gt; 新建任务</span>
+<br/>
+
+<div style="width: 800px;margin: 25px auto;">
+    <div style="text-align: center;">
+        <form id="returnTaskListForm" th:action="@{/pciAfp}" method="post" style="display:none" title="跳转">
+            <input id="hiddenCityId" type="hidden" name="cityId"/>
+        </form>
+        <a href="javascript:returnTaskList()" style="text-decoration: underline; font-weight: bold;">&lt;&lt;返回任务列表</a>
+        <br/>
+        <br/>
+        <span style="font-weight: bold;">任务信息>>参数配置>><span style="color: #31FF81;">提交任务</span></span>
+        <br/>
+        <br/>
+    </div>
+
+    <div style="text-align: center;">
+        <span style="font-size: large; font-weight: bold;">任务提交</span>
+    </div>
+
+    <!--/*@thymesVar id="taskObj" type="com.hgicreate.rno.lte.web.model.pciafp.PciAfpTaskObj"*/-->
+    <th:block th:object="${session.taskObj.taskInfo}">
+        <input type="hidden" id="useSf" th:value="*{useSf}"/>
+        <input type="hidden" id="cityId" th:value="*{cityId}"/>
+        <input type="button" value="&lt;上一步 " onclick="directionAction('overviewForm','back',storageOverview('back'))"/>
+        <div style="height: 2px; border-bottom: 1px #000 solid;"></div>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="detailTable">
+            <caption style="font-size: medium;">任务信息</caption>
+            <tr>
+                <td width="19%">任务名称</td>
+                <td width="81%" th:text="*{taskName}"></td>
+            </tr>
+            <tr>
+                <td width="19%">分析地市</td>
+                <td width="81%" th:text="*{provinceName + cityName}"></td>
+            </tr>
+            <tr>
+                <td>任务描述</td>
+                <td th:text="*{taskDesc}"></td>
+            </tr>
+        </table>
+
+        <form id="overviewForm" th:action="@{/pciAfp/overviewPageJump}" method="post" style="display: none">
+            <input type="hidden" name="direction" value="forward"/>
+        </form>
+
+        <form id="storageOverviewForm" th:action="@{/pciAfp/storageOverview}" enctype="multipart/form-data"
+              method="post">
+            <table width="100%" th:if="*{useSf}">
+                <tr>
+                    <td colspan="2" align="center" style="font-size: medium;">选择扫频文件</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 2px">
+                        <table id="structureParamTable" class="greystyle-standard" style="width: 100%">
+                            <thead>
+                            <tr>
+                                <th>选择</th>
+                                <th>文件</th>
+                                <th>测量时间</th>
+                                <th>数据量</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!--/*@thymesVar id="sfFileInfo" type="java.util.List<java.util.Map<java.lang.String,java.lang.Object>>"*/-->
+                            <!--/*@thymesVar id="sf" type="java.util.Map<java.lang.String,java.lang.Object>"*/-->
+                            <tr th:each="sf:${sfFileInfo}">
+                                <td><input class="forFileCheck" type="checkbox" name="filename"
+                                           value="${sf.FILE_NAME}"/></td>
+                                <td class='filename' th:value="${sf.FILE_NAME}" th:text="${sf.FILE_NAME}"></td>
+                                <td th:value="${sf.MEA_TIME}" th:text="${sf.MEA_TIME}"></td>
+                                <td th:value="${sf.RECORD_COUNT}" th:text="${sf.RECORD_COUNT}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="margin:15px"></div>
+
+            <table class="main-table1" style="width: 100%">
+                <tbody>
+                <tr style="background:#FFF">
+                    <td colspan="2" align="center" style="font-size: medium;border:0;background:#FFF">
+                        变PCI小区表<span style="color: red;font-size: smaller;">(以逗号</span>,<span
+                            style="color: red;font-size: smaller;">分隔)</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <textarea name="optimizeCells" id="optimizeCells" th:text="*{optimizeCells}"
+                                  style="width: 100%; height: 300px" title="变PCI小区表"></textarea>
+                    </td>
+                </tr>
+                <tr th:if="*{matrixType==2}">
+                    <td colspan="2" style="text-align: left;">
+                        <label for="fileId">导入干扰矩阵文件(csv)</label>
+                        <input type="file" style="width: 44%;" name="file" id="fileId" class="canclear required"/>
+                        <span style="color: red; width: 100px; font-family: 华文中宋,serif; text-align: center"
+                              id="fileDiv"></span>
+                    </td>
+                </tr>
+                <tr style="background:#FFF">
+                    <td style="padding-left: 80px;border:0;background:#FFF">
+                        <input type="button" id="submitTask" value="提交任务"/>
+                    </td>
+                    <td style="padding-left: 2px;border:0;background:#FFF">
+                        <input type="button" id="cancelTask" value="取消任务"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </th:block>
+</div>
+<div id="operInfo"
+     style="display: none; top: 40px; left: 600px; z-index: 999; width: 400px; height: 40px; background-color: #7dff3f; filter: alpha(Opacity = 80); -moz-opacity: 0.5; opacity: 0.5; position: fixed;">
+    <table height="100%" width="100%" style="text-align: center">
+        <tr>
+            <td><span id="operTip"></span></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

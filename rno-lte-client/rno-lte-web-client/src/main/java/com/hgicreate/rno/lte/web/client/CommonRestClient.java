@@ -1,0 +1,47 @@
+package com.hgicreate.rno.lte.web.client;
+
+import com.hgicreate.rno.lte.web.model.Area;
+import com.hgicreate.rno.lte.web.model.PageCondBody;
+import com.hgicreate.rno.lte.web.model.PageResultBody;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
+@FeignClient(name = "${rno.lte.service.common:rno-lte-common-service}", fallback = CommonRestClientFallback.class)
+public interface CommonRestClient {
+    /**
+     * 验证用户身份
+     */
+    @Deprecated
+    @GetMapping("/verifyUserIdentity")
+    boolean verifyUserIdentity(@RequestParam("account") String account);
+
+    /**
+     * 验证用户身份
+     */
+    @RequestMapping("/validateUser")
+    Boolean validateUser(@RequestParam(value = "username", required = false) String username);
+
+    /**
+     * 根据用户名和指定城市ID获取允许访问的区域
+     */
+    @RequestMapping(value = "/getAreaByAccount", method = GET)
+    List<Area> getAreaByAccount(@RequestParam("account") String account, @RequestParam("cityId") long cityId);
+
+    /**
+     * 终止任务
+     */
+    @RequestMapping(value = "/stopJob/{jobId}", method = POST)
+    Map<String, Object> stopJobByJobId(@PathVariable("jobId") Long jobId);
+
+    /**
+     * 分页查询某job的报告
+     */
+    @RequestMapping(value = "/queryReportByPage", method = POST)
+    PageResultBody queryReportByPage(@RequestBody PageCondBody<Long> condBody);
+}

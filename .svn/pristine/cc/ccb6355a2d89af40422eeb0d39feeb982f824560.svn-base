@@ -1,0 +1,75 @@
+server:
+  port: 8082
+  context-path: /${spring.application.name}
+eureka.client.serviceUrl.defaultZone: http://localhost:8761/eureka/
+endpoints:
+  restart.enabled: true
+  health.sensitive: false
+  shutdown.enabled: true
+management.security.enabled: false
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 20000
+ribbon:
+  ReadTimeout: 30000
+  ConnectTimeout: 30000
+rno:
+  lte:
+    service:
+      common: rno-lte-common-service
+      dynamic-coverage: rno-lte-dynamic-coverage-service
+      pci-eval: rno-lte-pci-eval-service
+    map:
+      url: 192.168.6.71
+      cell:
+        layers: rnodev:gis_lte_cell_layer
+    base:
+      map:
+        layer:
+          url: http://${rno.lte.map.url}/tiles/osm/{z}/{x}/{y}.png
+    cell:
+      map:
+        layer:
+          url: http://${rno.lte.map.url}:18080/geoserver/rnodev/wms
+      wfs:
+        url: http://${rno.lte.map.url}:18080/geoserver/rnodev/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${rno.lte.map.cell.layers}&maxFeatures=50&outputFormat=text%2Fjavascript
+
+---
+
+spring:
+  profiles: uat
+eureka.client.serviceUrl.defaultZone: http://192.168.6.41:8761/eureka/
+rno:
+  lte:
+    map:
+      cell:
+        layers: rnodev:gis_lte_cell_layer
+    base:
+      map:
+        layer:
+          url: http://rnouat-map.hgicreate.com/tiles/osm/{z}/{x}/{y}.png
+    cell:
+      map:
+        layer:
+          url: http://rnouat-gis.hgicreate.com/geoserver/rnodev/wms
+      wfs:
+        url: http://rnouat-gis.hgicreate.com/geoserver/rnodev/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${rno.lte.map.cell.layers}&maxFeatures=50&outputFormat=text%2Fjavascript
+
+---
+
+spring:
+  profiles: prod
+eureka.client.serviceUrl.defaultZone: http://192.168.50.20:8761/eureka/
+rno:
+  lte:
+    map:
+      cell:
+        layers: rnodev:gis_lte_cell_layer
+    base:
+      map:
+        layer:
+          url: http://rno-map.hgicreate.com/tiles/osm/{z}/{x}/{y}.png
+    cell:
+      map:
+        layer:
+          url: http://rno-gis.hgicreate.com/geoserver/rnodev/wms
+      wfs:
+        url: http://rno-gis.hgicreate.com/geoserver/rnodev/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${rno.lte.map.cell.layers}&maxFeatures=50&outputFormat=text%2Fjavascript

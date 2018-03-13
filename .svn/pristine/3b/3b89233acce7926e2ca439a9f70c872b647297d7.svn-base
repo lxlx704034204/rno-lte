@@ -1,0 +1,121 @@
+package com.hgicreate.rno.controller;
+
+import com.alibaba.fastjson.JSONObject;
+import com.hgicreate.rno.model.Area;
+import com.hgicreate.rno.service.CommonRestClient;
+import com.hgicreate.rno.service.RnoGisService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * Created by chao_xj on 2017/2/27.
+ */
+@RestController
+@SessionAttributes("account")
+@RequestMapping("/pciEvaluateMapPage")
+public class RnoPciEvalMapController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RnoPciEvalMapController.class);
+
+    private RnoGisService rnoGisService;
+    private CommonRestClient commonRestClient;
+    public RnoPciEvalMapController(RnoGisService rnoGisService,CommonRestClient commonRestClient) {
+        this.rnoGisService = rnoGisService;
+        this.commonRestClient = commonRestClient;
+    }
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    /**
+     *  必须绑定一个已经存在的对象，如果不存在，那么需要先定义
+     */
+    @ModelAttribute("account")
+    public String user(String account) {
+        return account == null ? "" : account;
+    }
+    @RequestMapping(value = "/IN", method = RequestMethod.POST)
+    String in(@RequestParam("cellId") String cellId, @RequestParam("jobId") int jobId) {
+        logger.debug("cellId={},jobId={}, ServiceUrl={}", cellId, jobId,  "/in");
+        String json = JSONObject.toJSONString(rnoGisService.in(jobId,cellId));
+        logger.debug("IN.json={}", json);
+        return json;
+    }
+    /**
+     * OUT干扰
+     */
+    @RequestMapping(value = "/OUT", method = RequestMethod.POST)
+    String out(@RequestParam("ncellId") String ncellId, @RequestParam("jobId") int jobId) {
+        logger.debug("ncellId={},jobId={}, ServiceUrl={}",ncellId , jobId,  "/out");
+        String json = JSONObject.toJSONString(rnoGisService.out(jobId,ncellId));
+        logger.debug("OUT.json={}", json);
+        return json;
+    }
+    /**
+     * pci智能评估
+     */
+    @RequestMapping(value = "/PCI", method = RequestMethod.POST)
+    String pci(@RequestParam("cellId") String cellId, @RequestParam("jobId") int jobId) {
+        logger.debug("pci.cellId={},jobId={}, ServiceUrl={}", cellId, jobId,"/pci");
+        String json = JSONObject.toJSONString(rnoGisService.pci(jobId,cellId));
+        logger.debug("pci.json={}", json);
+        return json;
+    }
+
+    /**
+     * 获取最近十次 LTE 干扰矩阵信息
+     */
+    @RequestMapping(value = "/getLatelyLteMatrixByCityIdForAjaxAction", method = RequestMethod.POST)
+    String getLatelyLteMatrixByCityIdForAjaxAction(@RequestParam("cityId") long cityId) {
+        logger.debug("进入getLatelyLteMatrixByCityIdForAjaxAction方法.cityId={}", cityId);
+        String result = JSONObject.toJSONString(commonRestClient.getLatelyLteMatrixByCityId(cityId));
+        logger.debug("result={}", result);
+        return result;
+    }
+
+    /**
+     * 获取同站小区
+     */
+    @RequestMapping(value = "/getSameStationCellsByLteCellIdForAjaxAction", method = RequestMethod.POST)
+    String getSameStationCellsByLteCellIdForAjaxAction(@RequestParam("lteCell") String lteCell) {
+        logger.debug("getSameStationCellsByLteCellIdForAjaxAction. lteCell={}", lteCell);
+        String res = JSONObject.toJSONString(commonRestClient.getSameStationCellsByCellId(lteCell));
+        logger.debug("result={}", res);
+        return res;
+    }
+
+    /**
+     * 转换lte小区与某同站小区的pci
+     */
+    @RequestMapping(value = "/changeLteCellPciForAjaxAction", method = RequestMethod.POST)
+    String changeLteCellPciForAjaxAction(@RequestParam("cell1") String cell1, @RequestParam("cell2") String cell2,
+                                         @RequestParam("pci1") String pci1, @RequestParam("pci2") String pci2) {
+        logger.debug("changeLteCellPciForAjaxAction. cell1={}, pci1={}, cell2={}, pci2={}", cell1, pci1, cell2, pci2);
+        String res = JSONObject.toJSONString(rnoGisService.changeLteCellPciForAjaxAction(cell1,cell2,pci1,pci2));
+        return res;
+    }
+
+    /**
+     * pci评估首页
+     */
+    @GetMapping
+    ModelAndView index(Map<String, Object> model, String account, SessionStatus sessionStatus) {
+        logger.debug("访问PCI评估地图首页,account={}",account);
+
+        if (!commonRestClient.verifyUserIdentity(account)) {
+            model.put("error", "非法登录用户，请选择正常渠道登录，谢谢！");
+            sessionStatus.setComplete();
+            return new ModelAndView("rno_fail");
+        }
+        List<Area> citiesList = commonRestClient.getAreaByAccount(account, -1);
+        logger.debug("commonRestClient.getAreaByAccount(account, -1)={}",citiesList);
+        model.put("areaObj", citiesList);
+        logger.debug("citiesList.get(0).getId()={}",citiesList.get(0).getChildren().get(0).getId());
+        logger.debug("res={}",model);
+        return new ModelAndView("rno_pci_evaluate");
+    }
+
+}

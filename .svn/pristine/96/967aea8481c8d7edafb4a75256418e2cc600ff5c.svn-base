@@ -1,0 +1,38 @@
+server.port=8095
+spring.profiles.active=dev
+mybatis.mapper-locations=com/hgicreate/rno/mapper/*.xml
+mybatis.type-aliases-package=com.hgicreate.rno.model
+
+# DB Connection Setting
+#spring.datasource.url=jdbc:oracle:thin:@192.168.6.40:1521:testora
+#spring.datasource.username=rno_pci
+#spring.datasource.password=123456
+#spring.datasource.driverClassName=oracle.jdbc.OracleDriver
+
+# SPARK Connection Setting
+#spring.datasource.spark.url=jdbc:hive2://192.168.6.101:10016/dev
+#spring.datasource.spark.username=hive
+#spring.datasource.spark.password=
+#spring.datasource.spark.driverClassName=org.apache.hive.jdbc.HiveDriver
+spring.datasource.url=jdbc:hive2://192.168.6.101:10016/dev
+spring.datasource.username=hive
+spring.datasource.password=
+spring.datasource.driverClassName=org.apache.hive.jdbc.HiveDriver
+
+#spring.cloud.config.uri=http://192.168.6.71:8888
+#eureka config
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+#��·����ʱ�����븺�ؾ��ⳬʱ���ʹ�ã����򽫳��ֶ���ظ�����
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=40000
+#���ؾ����ȡ��ʱ��Ӧ��С�ڶ�·����ʱ
+ribbon.ReadTimeout=60000
+#���ؾ������ӳ�ʱ��һ�����ȡ��ʱ���
+ribbon.ConnectTimeout=60000
+#log
+logging.level.root=info
+logging.level.com.hgicreate.rno=debug
+logging.level.com.hgicreate.rno.mapper=trace
+
+#use service
+rno.lte.service.common=rno-lte-common-service
+

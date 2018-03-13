@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>数据管理</title>
+    <!-- Common styles and scripts -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,  maximum-scale=1">
+
+    <!-- webjars -->
+    <script src="/webjars/jquery/3.1.1/jquery.js" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+
+    <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"
+          th:href="@{/webjars/jquery-ui/jquery-ui.min.css}"/>
+    <script src="/webjars/jquery-ui/1.12.1/jquery-ui.js" th:src="@{/webjars/jquery-ui/jquery-ui.min.js}"></script>
+
+    <link rel="stylesheet" href="/webjars/jQuery-Timepicker-Addon/1.5.0/jquery-ui-timepicker-addon.css"
+          th:href="@{/webjars/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon.min.css}"/>
+    <script src="/webjars/jQuery-Timepicker-Addon/1.5.0/jquery-ui-timepicker-addon.js"
+            th:src="@{/webjars/jQuery-Timepicker-Addon/jquery-ui-timepicker-addon.min.js}"></script>
+
+    <script src="/webjars/jquery-form/3.51/jquery.form.js" th:src="@{/webjars/jquery-form/jquery.form.js}"></script>
+
+    <link rel="stylesheet"
+          href="/webjars/bootstrap/3.3.7/css/bootstrap.css"
+          th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <script src="/webjars/bootstrap/3.3.7/js/bootstrap.js"
+            th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+    <link rel="stylesheet"
+          href="/webjars/font-awesome/4.7.0/css/font-awesome.css"
+          th:href="@{/webjars/font-awesome/css/font-awesome.min.css}">
+
+    <!-- lib -->
+    <link rel="stylesheet" href="/static/lib/bootstrap-assets/css/docs.css" th:href="@{/lib/bootstrap-assets/css/docs.css}">
+
+    <script src="/static/lib/jquery-plugins/i18n/jquery-ui-datepicker-zh-CN.js"
+            th:src="@{/lib/jquery-plugins/i18n/jquery-ui-datepicker-zh-CN.js}"></script>
+    <script src="/static/lib/jquery-plugins/i18n/jquery-ui-timepicker-zh-CN.js"
+            th:src="@{/lib/jquery-plugins/i18n/jquery-ui-timepicker-zh-CN.js}"></script>
+
+    <!--自定义-->
+    <script src="/static/js/rno_lte_data_mgt.js" th:src="@{/js/rno_lte_data_mgt.js}"></script>
+    <script src="/static/js/rno_tool.js" th:src="@{/js/rno_tool.js}"></script>
+
+    <!-- custom -->
+    <link rel="stylesheet" href="/static/css/form.css" th:href="@{/css/form.css}">
+    <link rel="stylesheet" href="/static/css/form2.css" th:href="@{/css/form2.css}">
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        areaObj = /*[[${areaObj}]]*/ null;
+        /*]]>*/
+    </script>
+    <style>
+        .test_ul li{
+            float:left;
+        }
+
+        .tr-style {
+            /*float: left;*/
+            display:inline-block;
+        }
+
+        /*奇数行*/
+        .table-striped tbody tr:nth-child(odd) td { background-color: #ffffff; }
+        /*偶数行*/
+        .table-striped tbody tr:nth-child(even) td { background-color: #efefef; }
+    </style>
+</head>
+<body>
+<div id="loading" class="loading" style="display: none">加载中...</div>
+<div id="info" class="info-style" style="display: none"></div>
+<div class="bs-callout bs-callout-danger" id="callout-tables-striped-ie8">
+    <form id="dataMgtForm" class="form-inline" enctype="multipart/form-data">
+        <input type="hidden" id="hiddenPageSize" name="pageSize" value="25"/>
+        <input type="hidden" id="hiddenCurrentPage" name="currentPage" value="1"/>
+        <input type="hidden" id="hiddenTotalPageCnt" name="totalPageCnt" value="0"/>
+        <input type="hidden" id="hiddenTotalCnt" name="totalCnt" value="0"/>
+        <table class="table-style">
+            <tr class="tr-style">
+                <td class="td-style" style="min-width: 250px">
+                        <label class="label-style" for="dataType">数据类型：</label>
+                        <select class="form-control" style="width: 120px; display: inline-block" id="dataType" name="dataType">
+                            <option value="ALL"></option>
+                            <option value="EP">工参数据</option>
+                            <option value="MR">MR数据</option>
+                            <option value="HO">切换数据</option>
+                            <option value="FLOW">流量数据</option>
+                            <!--<option value="SF">扫频数据</option>-->
+                            <!--<option value="STS">话务数据</option>-->
+                            <option value="DT">路测数据</option>
+                        </select>
+                </td>
+                <td class="td-style" style="min-width: 350px">
+                            <label class="label-style">所属城市</label>
+                            <select name="provinceId" class="form-control" style="width: 90px; display: inline-block" id="provinceId" title="省名">
+                            </select>
+                            <select name="cityId" class="form-control" style="width: 90px; display: inline-block" id="cityId" title="城市名">
+                            </select>
+                </td>
+                <td class="td-style" style="min-width: 300px">
+                    <select name="createTime" class="form-control" style="width: 150px; display: inline-block" title="任务提交时间">
+                        <option value="THREE_DAYS" selected>三天内的导入</option>
+                        <option value="MONTH">一个月内的导入</option>
+                        <option value="QUARTER">三个月内的导入</option>
+                        <option value="ALL">全部导入</option>
+                    </select>
+                </td>
+                <td class="td-style" style="min-width: 200px">
+                    <button type="button" id="searchBtn" class="btn-width btn btn-default">查询</button>
+                </td>
+            <tr style="margin-top: 10px;">
+                <td class="td-style" style="min-width: 650px">
+                    <div class="input-prepend">
+                        <button type="button" class="btn" onclick="$('input[name=file]').click();">选择文件</button>
+                        <input id="photoCover" class="input-large form-control" type="text" style="height:30px; width: 410px" title="显示文件名">
+                        <input type="file" name="file" accept=".csv" style="display:none">
+                    </div>
+                </td>
+                <td class="td-style" style="min-width: 250px">
+                    <input type="checkbox" id="skipTittle" name="skipTittle" checked><label for="skipTittle" >第一行为标题</label>
+                </td>
+                <td class="td-style" style="min-width: 200px">
+                    <button type="button" id="importBtn" class="btn-width btn btn-default">导入</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="progressDiv" hidden style="min-width: 400px;padding-left: 70px">
+    <progress class="progress" value="0" max="100" style="min-width: 400px"><span></span></progress>
+</div>
+
+<div class="bs-example form-bottom-style" data-example-id="striped-table" id="table-div" style="padding:0;">
+    <div class="bs-example form-bottom-style"  style="margin-top: 0;">
+    <!--<table id="dataRecordListTab" class="table table-hover table-bordered">-->
+    <table id="dataRecordListTab" class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th>数据类型</th>
+            <th>所属城市</th>
+            <th>文件名称</th>
+            <th>上传时间</th>
+            <th>导入完成时间</th>
+            <th>上传帐号</th>
+            <th>状态</th>
+        </tr>
+        </thead>
+    </table>
+    </div>
+    <div >
+    <nav id="dataRecordListBar" aria-label="...">
+        <ul class="pagination page-style" style="margin-top: 0; margin-bottom: 20px">
+            <li>
+                <div class="span-style">
+                    记录数：<span id="emTotalCnt">0</span> 条
+                </div>
+            </li>
+            <li>
+                <div class="span-style">
+                    共 <span id="emTotalPageCnt">0</span> 页
+                </div>
+            </li>
+            <li>
+                <a onclick="showListViewByPage('first',queryDataRecordListForm,'dataMgtForm','dataRecordListBar')">首页</a>
+            </li>
+            <li>
+                <a onclick="showListViewByPage('back',queryDataRecordListForm,'dataMgtForm','dataRecordListBar')">上一页</a>
+            </li>
+            <li>
+                <!--<a><label>第 <input type="text" id="showCurrentPage" class="paging_input_text form-control" value="0"/> 页</label></a>-->
+                <a>第 <input type="text" id="showCurrentPage" class="paging_input_text form-control" value="0" title="第几页"/> 页</a>
+            </li>
+            <li>
+                <a onclick="showListViewByPage('num',queryDataRecordListForm,'dataMgtForm','dataRecordListBar')">GO</a>
+            </li>
+            <li>
+                <a onclick="showListViewByPage('next',queryDataRecordListForm,'dataMgtForm','dataRecordListBar')">下一页</a>
+            </li>
+            <li>
+                <a onclick="showListViewByPage('last',queryDataRecordListForm,'dataMgtForm','dataRecordListBar')">末页</a>
+            </li>
+        </ul>
+    </nav>
+    </div>
+</div>
+</body>
+</html>

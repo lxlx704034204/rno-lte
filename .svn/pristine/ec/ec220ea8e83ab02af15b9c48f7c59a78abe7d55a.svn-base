@@ -1,0 +1,37 @@
+package com.hgicreate.rno.lte.common.model.datamgt;
+
+import com.hgicreate.rno.lte.common.model.Area;
+import lombok.Data;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+@Entity
+@Table(name = "RNO_LTE_DATA_STATS_T")
+@SequenceGenerator(name = "SEQ_RNO_LTE_DATA_STATS_T", sequenceName = "SEQ_RNO_LTE_DATA_STATS_T", allocationSize = 3)
+public class DataStats implements Serializable {
+    //数据类型 所属城市 文件名称 上传时间 导入完成时间 上传帐号 状态
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_RNO_LTE_DATA_STATS_T")
+    private Long id;
+    private Long jobId;
+    private Long areaId;
+    private String dataType;
+    private Date recordDate;
+    private Long recordAmount;
+    private Date analysisTime;
+
+    @ManyToOne
+    @JoinColumn(name = "jobId", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private DataJob dataJob;
+
+    @ManyToOne
+    @JoinColumn(name = "areaId", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Area area;
+}
